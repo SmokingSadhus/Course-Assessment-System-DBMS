@@ -1,12 +1,37 @@
 ---------------------------------------
---Drop table professor;
---Drop table COURSE;
---Drop table topic;
----Drop table COURSE_topic;
----drop table exercise;
----drop table QUESTION;
----drop table EXERCISE_QUESTION
---------Start from here----------------------
+drop sequence ATTEMPT_SUBMISSION_SEQ;
+drop sequence Question_SEQ;
+drop sequence EXERCISE_SEQ;
+ drop trigger ATTEMPT_SUBMISSION_PK_Trigger;
+ drop trigger EXERCISE_PK_Trigger;
+ drop trigger Question_PK_Trigger;
+drop trigger check_is_grad;
+ 
+ drop table TA;
+drop table COURSE_STUDENT;
+drop table SUBMISSION_RESULT;
+drop table ATTEMPT_SUBMISSION;
+drop table QUESTION_PARAM_ANSWERS;
+drop table ANSWER;
+drop table PARAMETER;
+drop table QUESTION_BANK;
+drop table EXERCISE_QUESTION;
+drop table QUESTION;
+drop table exercise;
+Drop table COURSE_topic;
+Drop table topic;
+Drop table COURSE;
+Drop table student;
+Drop table professor;
+
+
+
+
+
+
+
+--------Start from here-----------
+-----------
 
 CREATE TABLE STUDENT 
 (
@@ -126,16 +151,7 @@ ON DELETE SET NULL
    
 );
 ---------------------------------------------------------
-CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
-   before insert on  EXERCISE
-   for each row 
-begin  
-   if inserting then 
-      if :NEW.EXERCISE_ID is null then 
-         select EXERCISE_SEQ.nextval into :NEW.EXERCISE_ID from dual; 
-      end if; 
-   end if; 
-end;
+
 
 ----------------------------------------------------------
 CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
@@ -165,16 +181,7 @@ ON DELETE SET NULL
 (difficulty_level >=1 and difficulty_level <=6 )
 );
 --------
-CREATE OR REPLACE TRIGGER Question_PK_Trigger 
-   before insert on  Question
-   for each row 
-begin  
-   if inserting then 
-      if :NEW.QUESTION_ID is null then 
-         select QUESTION_SEQ.nextval into :NEW.QUESTION_ID from dual; 
-      end if; 
-   end if; 
-end;
+
 --------------------
 CREATE TABLE EXERCISE_QUESTION 
 (
@@ -335,16 +342,7 @@ REFERENCES STUDENT
 
 );
 ---------------
-CREATE OR REPLACE TRIGGER ATTEMPT_SUBMISSION_PK_Trigger 
-   before insert on  ATTEMPT_SUBMISSION
-   for each row 
-begin  
-   if inserting then 
-      if :NEW.ATTEMPT_ID is null then 
-         select ATTEMPT_SUBMISSION_SEQ.nextval into :NEW.ATTEMPT_ID from dual; 
-      end if; 
-   end if; 
-end;
+
 ----------------------------------------------------------------------
 CREATE TABLE SUBMISSION_RESULT 
 (
@@ -457,7 +455,7 @@ REFERENCES STUDENT
 ON DELETE CASCADE
 );
 ------------------------------------------------
-
+-- drop trigger check_is_grad
 -----------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER check_is_grad
   BEFORE INSERT OR UPDATE ON TA
@@ -473,5 +471,44 @@ Raise_Application_Error(-20000, 'Undergrads cannot be TA');
 --insert into tp values(1);
 END IF;
 END;
+/ 
+ALTER TRIGGER check_is_grad ENABLE;
 
+CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
+   before insert on  EXERCISE
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.EXERCISE_ID is null then 
+         select EXERCISE_SEQ.nextval into :NEW.EXERCISE_ID from dual; 
+      end if; 
+   end if; 
+end;
+/
+ALTER TRIGGER EXERCISE_PK_Trigger ENABLE;
 
+CREATE OR REPLACE TRIGGER Question_PK_Trigger 
+   before insert on  Question
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.QUESTION_ID is null then 
+         select QUESTION_SEQ.nextval into :NEW.QUESTION_ID from dual; 
+      end if; 
+   end if; 
+end;
+/ 
+ALTER TRIGGER Question_PK_Trigger ENABLE;
+
+CREATE OR REPLACE TRIGGER ATTEMPT_SUBMISSION_PK_Trigger 
+   before insert on  ATTEMPT_SUBMISSION
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.ATTEMPT_ID is null then 
+         select ATTEMPT_SUBMISSION_SEQ.nextval into :NEW.ATTEMPT_ID from dual; 
+      end if; 
+   end if; 
+end;
+/
+ALTER TRIGGER ATTEMPT_SUBMISSION_PK_Trigger ENABLE;
