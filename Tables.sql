@@ -1,11 +1,11 @@
 ---------------------------------------
-Drop table professor;
-Drop table COURSE;
-Drop table topic;
-Drop table COURSE_topic;
-drop table exercise;
-drop table QUESTION;
-drop table EXERCISE_QUESTION
+--Drop table professor;
+--Drop table COURSE;
+--Drop table topic;
+---Drop table COURSE_topic;
+---drop table exercise;
+---drop table QUESTION;
+---drop table EXERCISE_QUESTION
 --------Start from here----------------------
 
 CREATE TABLE STUDENT 
@@ -95,9 +95,10 @@ REFERENCES TOPIC
 ON DELETE CASCADE
 );
 ----------------------------------------
+CREATE SEQUENCE  EXERCISE_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 CREATE TABLE EXERCISE 
 (
- EXERCISE_ID NUMBER GENERATED ALWAYS AS IDENTITY INCREMENT BY 1 START WITH 1 NOT NULL 
+ EXERCISE_ID NUMBER NOT NULL 
 , COURSE_ID VARCHAR(20) NOT NULL 
 , NAME VARCHAR(100) 
 , DEADLINE DATE 
@@ -125,14 +126,23 @@ ON DELETE SET NULL
    
 );
 ---------------------------------------------------------
-
+CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
+   before insert on  EXERCISE
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.EXERCISE_ID is null then 
+         select EXERCISE_SEQ.nextval into :NEW.EXERCISE_ID from dual; 
+      end if; 
+   end if; 
+end;
 
 ----------------------------------------------------------
-
+CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 -----------------------------------------------------------
 CREATE TABLE QUESTION 
 (
-  QUESTION_ID NUMBER GENERATED ALWAYS AS IDENTITY INCREMENT BY 1 START WITH 1 NOT NULL 
+  QUESTION_ID NUMBER NOT NULL 
 , QUESTION_TEXT VARCHAR(200) NOT NULL 
 , DIFFICULTY_LEVEL NUMBER NOT NULL 
 , HINT VARCHAR(200) 
@@ -155,7 +165,17 @@ ON DELETE SET NULL
 (difficulty_level >=1 and difficulty_level <=6 )
 );
 --------
-
+CREATE OR REPLACE TRIGGER Question_PK_Trigger 
+   before insert on  Question
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.QUESTION_ID is null then 
+         select QUESTION_SEQ.nextval into :NEW.QUESTION_ID from dual; 
+      end if; 
+   end if; 
+end;
+--------------------
 CREATE TABLE EXERCISE_QUESTION 
 (
   EXERCISE_ID NUMBER NOT NULL 
@@ -280,10 +300,12 @@ ON DELETE CASCADE
 );
 
 ---drop table ATTEMPT_SUBMISSION------------------------------------
-
+-------------------
+CREATE SEQUENCE  ATTEMPT_SUBMISSION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
+--------------------
 CREATE TABLE ATTEMPT_SUBMISSION 
 (
-  ATTEMPT_ID NUMBER GENERATED ALWAYS AS IDENTITY INCREMENT BY 1 START WITH 1 NOT NULL  
+  ATTEMPT_ID NUMBER NOT NULL  
 , EXERCISE_ID NUMBER NOT NULL 
 , STUDENT_ID VARCHAR(20) NOT NULL 
 , SUBMISSION_TIME TIMESTAMP NOT NULL 
@@ -312,6 +334,17 @@ REFERENCES STUDENT
 )
 
 );
+---------------
+CREATE OR REPLACE TRIGGER ATTEMPT_SUBMISSION_PK_Trigger 
+   before insert on  ATTEMPT_SUBMISSION
+   for each row 
+begin  
+   if inserting then 
+      if :NEW.ATTEMPT_ID is null then 
+         select ATTEMPT_SUBMISSION_SEQ.nextval into :NEW.ATTEMPT_ID from dual; 
+      end if; 
+   end if; 
+end;
 ----------------------------------------------------------------------
 CREATE TABLE SUBMISSION_RESULT 
 (
@@ -392,7 +425,7 @@ REFERENCES STUDENT
 )
 ON DELETE CASCADE
 );
--------------------------------------------
+--------drop table TA-----------------------------------
 
 CREATE TABLE TA 
 (
@@ -423,6 +456,22 @@ REFERENCES STUDENT
 )
 ON DELETE CASCADE
 );
+------------------------------------------------
 
+-----------------------------------------------------------------------------
+CREATE OR REPLACE TRIGGER check_is_grad
+  BEFORE INSERT OR UPDATE ON TA
+  FOR EACH ROW
+DECLARE
+  isGrad number;
+BEGIN
+select is_grad into isGrad from student s where s.STUDENT_ID = :NEW.STUDENT_ID and rownum = 1;
+if ( isGrad <> 1)
+--if ( :NEW.STUDENT_ID >= 1)
+then 
+Raise_Application_Error(-20000, 'Undergrads cannot be TA');
+--insert into tp values(1);
+END IF;
+END;
 
 
