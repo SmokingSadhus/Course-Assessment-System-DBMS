@@ -23,16 +23,22 @@ Drop table topic;
 Drop table COURSE;
 Drop table student;
 Drop table professor;
-
-
-
-
-
-
+drop table ROLE;
 
 --------Start from here-----------
 -----------
-
+CREATE TABLE ROLE 
+(
+  USER_ID VARCHAR(20) NOT NULL 
+, ROLE VARCHAR(5) NOT NULL 
+, PASSWORD VARCHAR(20) NOT NULL 
+, CONSTRAINT ROLE_PK PRIMARY KEY 
+  (
+    USER_ID 
+  
+  )
+   
+);
 CREATE TABLE STUDENT 
 (
   STUDENT_ID VARCHAR(20) NOT NULL 
@@ -454,6 +460,8 @@ REFERENCES STUDENT
 )
 ON DELETE CASCADE
 );
+
+
 ------------------------------------------------
 -- drop trigger check_is_grad
 -----------------------------------------------------------------------------
