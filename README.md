@@ -11,3 +11,11 @@
 >   to user540;
 
 Run export.sql
+
+## Connect to ncsu oracle db
+
+>Host Name: orca.csc.ncsu.edu
+>Port: 1521
+>SID: orcl01
+>USERNAME: unityid
+>Password: StudentId
