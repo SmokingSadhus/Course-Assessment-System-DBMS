@@ -14,7 +14,8 @@ public static void main(String[] args) {
 	ResultSet rs = null;
 	try {
 		Class.forName("oracle.jdbc.driver.OracleDriver");
-		con = DriverManager.getConnection("jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01","amedhek","200156110");
+		
+		con = DriverManager.getConnection("jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01","Enter unity id here","Enter student id here");
 		stmt = con.createStatement();
 		rs = stmt.executeQuery("SELECT * FROM course");
 	} catch (ClassNotFoundException | SQLException e) {
@@ -38,7 +39,7 @@ public Connection getConnection(){
 	ResultSet rs = null;
 	try {
 		Class.forName("oracle.jdbc.driver.OracleDriver");
-		con = DriverManager.getConnection("jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01","amedhek","200156110");
+		con = DriverManager.getConnection("jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01","Enter unity id here","Enter student id here");
 		} catch (ClassNotFoundException | SQLException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
