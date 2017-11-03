@@ -24,9 +24,25 @@ Drop table COURSE;
 Drop table student;
 Drop table professor;
 drop table ROLE;
+drop table MENU_OPTIONS;
 
 --------Start from here-----------
 -----------
+CREATE TABLE MENU_OPTIONS 
+(
+  ROLE VARCHAR(1) NOT NULL 
+  , MENU_NAME VARCHAR(100) NOT NULL
+, COL_NAME VARCHAR(100) NOT NULL 
+ , DISPLAY_ORDER NUMBER NOT NULL 
+, CONSTRAINT MENU_OPTIONS_PK PRIMARY KEY 
+  (
+    ROLE 
+  , COL_NAME 
+  , MENU_NAME 
+  )
+);
+
+
 CREATE TABLE ROLE 
 (
   USER_ID VARCHAR(20) NOT NULL 
