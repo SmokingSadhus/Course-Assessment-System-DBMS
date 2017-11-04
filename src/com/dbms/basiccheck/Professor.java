@@ -60,13 +60,109 @@ public class Professor {
 			System.out.println("Enroll/Drop A Student");	
 		}
 		else if (optionSelected.equals("Search/Add questions to Question Bank")){
-			System.out.println("Search/Add questions to Question Bank");
+			 addQuestionToBank();
+			//System.out.println("Search/Add questions to Question Bank");
 		}
         
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+
+	private static void addQuestionToBank() {
+		// TODO Auto-generated method stub
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<String> courses = new ArrayList<String>();
+		System.out.println("Select course to view question bank.");
+		try{
+			stmt=con.prepareStatement("SELECT COURSE_ID from COURSE where PROFESSOR_ID = ?");
+			 stmt.setString(1, username);
+		   	 rs = stmt.executeQuery();
+		 while(rs.next()){
+			 courses.add(rs.getString("COURSE_ID"));
+		 }
+		 for(int i=1; i <= courses.size();i++){
+			 System.out.println(i + ": " + courses.get(i-1));
+		 }
+		 System.out.println("select 0 to go to previous page.");
+		 int choice  = sc.nextInt();
+		 sc.nextLine();
+		 if(choice == 0){
+			 homePage();
+		 }
+		 else{
+			 String course = courses.get(choice-1);
+			 displayQuestions(course);
+			 
+		 }
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	private static void displayQuestions(String course) {
+		// TODO Auto-generated method stub
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<Integer> questions = new ArrayList<Integer>();
+		//System.out.println("Select course to view question bank.");
+		try{
+			stmt=con.prepareStatement("select q.QUESTION_ID, q.QUESTION_TEXT, q.DIFFICULTY_LEVEL, q.TOPIC_ID from QUESTION_BANK qb inner join QUESTION q on qb.QUESTION_ID = q.QUESTION_ID where qb.COURSE_ID = ?");
+			 stmt.setString(1, course);
+		   	 rs = stmt.executeQuery();
+		   	 int i =1;
+		 while(rs.next()){
+			 questions.add(rs.getInt("QUESTION_ID"));
+			 System.out.println(i+" Question ID: " + rs.getString("QUESTION_ID") + " Question TEXT: " + rs.getString("QUESTION_TEXT") + " Difficulty Level: " + rs.getString("DIFFICULTY_LEVEL") + " Topic ID: " + rs.getString("TOPIC_ID"));
+			 i++;
+			  }
+		 cg.closeResult(rs);
+		 cg.closeStatement(stmt);
+		 System.out.println("For deleting press 1");
+		 System.out.println("For adding press 2");
+		 System.out.println("Press 0 to go to previous screen.");
+		 int choice = sc.nextInt();
+		 sc.nextLine();
+		 if(choice == 0){
+			 addQuestionToBank();
+		 }
+		 else if(choice == 1){
+			 System.out.println("Enter choice to delete");
+			 int choice2 = sc.nextInt();
+			 sc.nextLine();
+			 int questionDelete = questions.get(choice2-1);
+			 stmt = con.prepareStatement("delete from QUESTION_BANK where QUESTION_ID = ? and COURSE_ID = ?");
+			 stmt.setInt(1, questionDelete);
+			 stmt.setString(2, course);
+		   	 stmt.executeUpdate();
+		   	 cg.closeStatement(stmt);
+		   	 System.out.println("Successfully deleted");
+		   	displayQuestions(course);
+			 
+		 }
+		 else if(choice == 2){
+			 addNewQuestions(course);
+		 }
+		 
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	private static void addNewQuestions(String course) {
+		// TODO Auto-generated method stub
+		System.out.println("Enter question text: ");
+		String q = sc.nextLine();
+		
+		
 	}
 
 	private static void viewAddCourses() {
@@ -127,6 +223,7 @@ public class Professor {
 		
 		String getRelevantOptions = "{call SELECT_PROFESSOR_OPTIONS(?,?,?)}";
 		CallableStatement callableStatement = null;
+		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		try {
 			callableStatement = con.prepareCall(getRelevantOptions);
@@ -136,14 +233,164 @@ public class Professor {
 			callableStatement.executeUpdate();
 			rs = (ResultSet) callableStatement.getObject(3);
 			List<String> options = new ArrayList<String>();
-			while(rs.next()){
-				
-				System.out.println(rs.getString("col_name"));
-				//options.add(rs.getString("col_name"));
+			while (rs.next()) {
+
+				// System.out.println(rs.getString("col_name"));
+				options.add(rs.getString("col_name"));
+
 			}
-			//String d = "k";
+			cg.closeResult(rs);
+			cg.closeStatement(callableStatement);
+			stmt=con.prepareStatement("SELECT COURSE_NAME, START_DATE, END_DATE FROM COURSE where COURSE_ID = ?");
+			 stmt.setString(1, courseId);
+		     rs = stmt.executeQuery();
+		     String courseName = "";
+		     String stDate = "";
+		     String endDate = "";
+		     while(rs.next()){
+		    	 courseName = rs.getString("COURSE_NAME");
+		    	 stDate = rs.getString("START_DATE");
+		    	 endDate = rs.getString("END_DATE");
+		     }
+		     cg.closeResult(rs);
+		     cg.closeStatement(stmt);
+		     System.out.println("Course Name: " + courseName);
+		     System.out.println("Start Date: " + stDate);
+		     System.out.println("End Date: " + endDate);
+			for(int i=4; i <= options.size();i++){
+				System.out.println(i + ": " + options.get(i-1));
+			}
+			System.out.println("Press 0 to go to previous page");
+			
+			int selOption = sc.nextInt();
+			sc.nextLine();
+			if(selOption == 0){
+				viewAddCourses();
+			}
+			else{
+			String option = options.get(selOption-1);
+			if(option.equals("View Exercise")){
+				viewExercise(courseId);
+			}
+			else if (option.equals("ADD Exercise")){
+				addExercise(courseId);
+			}
+			else if(option.equals("View TA")){
+				viewTA(courseId);
+			}
+			else if(option.equals("Add TA")){
+				addTA(courseId);
+			}
+			else if(option.equals("Enroll/Drop Student")){
+				enrollDrop(courseId);
+			}
+			else if(option.equals("View Report")){
+				viewReport(courseId);
+			}
+			}
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	private static void viewReport(String courseId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void enrollDrop(String courseId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void addTA(String courseId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void viewTA(String courseId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void addExercise(String courseId) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+	private static void viewExercise(String courseId) {
+		// TODO Auto-generated method stub
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+		stmt=con.prepareStatement("SELECT EXERCISE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES,START_DATE, END_DATE, POINTS, PENALTY, SCORING_POLICY, SC_MODE FROM EXERCISE where COURSE_ID = ?");
+		 stmt.setString(1, courseId);
+	     rs = stmt.executeQuery();
+	     
+	     while(rs.next()){
+	    	 System.out.println("Exercise ID: " + rs.getString("EXERCISE_ID") + " Exercise Name: " + rs.getString("NAME") + " DEADLINE: " + rs.getString("DEADLINE") + " TOTAL_QUESTIONS: " + rs.getString("TOTAL_QUESTIONS") + " RETRIES: " + rs.getString("RETRIES") + " START DATE: " + rs.getString("START_DATE") + " END DATE: " + rs.getString("END_DATE") + " Points: " + rs.getString("POINTS") + " PENALTY: " + rs.getString("PENALTY") + " SCORING POLICY: " + rs.getString("SCORING_POLICY") + " MODE: " + rs.getString("SC_MODE"));
+
+		}
+	     boolean done = false;
+	     while(!done){
+	    	 
+	     
+	     System.out.println("Please Enter exercise Id for further details: ");
+	     System.out.println("Press 0 to go to previous menu ");
+	     String choice = sc.nextLine();
+	     if(isNumber(choice)){
+	    	 int no = Integer.parseInt(choice);
+	    	 if(no == 0){
+	    		 done = true;
+	    		 viewSpecificCourse(courseId);
+	    	 }
+	    	 else{
+	    		 viewSpecificExercise(no, courseId);
+	    	 }
+	    	 
+	     }
+	     else{
+	    	 System.out.println("Invalid input, Please try again");
+	     }
+
+		}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	private static void viewSpecificExercise(int no, String courseId) {
+		// TODO Auto-generated method stub
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+		stmt=con.prepareStatement("SELECT SC_MODE FROM EXERCISE where EXERCISE_ID = ?");
+		 stmt.setInt(1, no);
+	     rs = stmt.executeQuery();
+	     String mode = "";
+	     while(rs.next()){
+	    	 mode = rs.getString("SC_MODE");
+	     }
+	     
+	     cg.closeResult(rs);
+	     cg.closeStatement(stmt);
+	     if(mode.equals("ADAPTIVE")){
+	    	 
+	     }
+	     else{
+	    	 stmt=con.prepareStatement("SELECT EQ.QUESTION_ID, Q.QUESTION_TEXT, Q.DIFFICULTY_LEVEL, Q.HINT, Q.EXPLANATION, Q.TOPIC_ID FROM EXERCISE_QUESTION EQ inner join QUESTION Q on EQ.QUESTION_ID = Q.QUESTION_ID where EQ.EXERCISE_ID = 1 ");
+	     }
+	     
+	     }
+		catch(Exception e){
 			e.printStackTrace();
 		}
 		
