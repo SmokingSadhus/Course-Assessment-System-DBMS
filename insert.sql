@@ -101,9 +101,9 @@ insert into EXERCISE (COURSE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES, START
 insert into topic values ('T1','Topic Number one');
 insert into topic values ('T2','Topic Number two');
 
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your name?','T1',5,'H1','EEE','F');
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your surname?','T1',5,'H1','EEE','F');
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your mane?','T1',5,'H1','EEE','F');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION, QUESTION_TYPE) values ('What is your name?','T1',5,'H1','EEE','F');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION, QUESTION_TYPE) values ('What is your surname?','T1',5,'H1','EEE','F');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION, QUESTION_TYPE) values ('What is your mane?','T1',5,'H1','EEE','F');
 
 
 insert into QUESTION_BANK values ('CSC 540', 1);
