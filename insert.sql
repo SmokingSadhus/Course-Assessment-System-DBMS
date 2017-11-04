@@ -4,6 +4,9 @@ select * from question
 
 select * from course
 
+ALTER TABLE QUESTION 
+ADD (QUESTION_TYPE VARCHAR(20) DEFAULT Fixed );
+
 insert into topic values ('T1','Topic Number one')
 
 insert into question (question_text, difficulty_level,hint,explanation,topic_id) values ('Q1',5,'h','e','T1')
@@ -98,14 +101,15 @@ insert into EXERCISE (COURSE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES, START
 insert into topic values ('T1','Topic Number one');
 insert into topic values ('T2','Topic Number two');
 
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your name?','T1',5,'H1','EEE');
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your surname?','T1',5,'H1','EEE');
-insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your mane?','T1',5,'H1','EEE');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your name?','T1',5,'H1','EEE','F');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your surname?','T1',5,'H1','EEE','F');
+insert into QUESTION (QUESTION_TEXT,TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values ('What is your mane?','T1',5,'H1','EEE','F');
 
-insert into QUESTION_BANK values ('CSC 540', 4);
-insert into QUESTION_BANK values ('CSC 540', 5);
-insert into QUESTION_BANK values ('CSC 541', 4);
-insert into QUESTION_BANK values ('CSC 541', 6);
+
+insert into QUESTION_BANK values ('CSC 540', 1);
+insert into QUESTION_BANK values ('CSC 540', 2);
+insert into QUESTION_BANK values ('CSC 541', 1);
+insert into QUESTION_BANK values ('CSC 541', 3);
 
 
 ------------------------------------------------------------------------------------------
@@ -131,3 +135,15 @@ execute SELECT_PROFESSOR_OPTIONS('CSC 540','P1', :rc);
 SELECT EQ.QUESTION_ID, Q.QUESTION_TEXT, Q.DIFFICULTY_LEVEL, Q.HINT, Q.EXPLANATION, Q.TOPIC_ID FROM EXERCISE_QUESTION EQ inner join QUESTION Q on EQ.QUESTION_ID = Q.QUESTION_ID where EQ.EXERCISE_ID = 1 
 
 select q.QUESTION_ID, q.QUESTION_TEXT, q.DIFFICULTY_LEVEL, q.TOPIC_ID from QUESTION_BANK qb inner join QUESTION q on qb.QUESTION_ID = q.QUESTION_ID where qb.COURSE_ID = ?;  
+
+
+
+
+select * from question
+
+select * from question_bank
+
+select * from QUESTION_PARAM_ANSWERs
+--and OBJECT_NAME='COURSE'
+
+Consider a disk with a <?>, <?>, <?>, <?>, <?>. What is the capacity of a track in bytes?

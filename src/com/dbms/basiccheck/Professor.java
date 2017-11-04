@@ -159,10 +159,132 @@ public class Professor {
 
 	private static void addNewQuestions(String course) {
 		// TODO Auto-generated method stub
-		System.out.println("Enter question text: ");
-		String q = sc.nextLine();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		CallableStatement callableStatement = null;
+		try {
+		System.out.println("Enter Question Type");
+		String type = sc.nextLine();
+		System.out.println("Enter Question Text");
+		String text =  sc.nextLine();
+		System.out.println("Enter topic");
+		String topic = sc.nextLine();
+		System.out.println("Enter difficulty level");
+		int dl = sc.nextInt();
+		sc.nextLine();
+		System.out.println("Enter Hint");
+		String hint = sc.nextLine();
+		System.out.println("Explanation");
+		String exp = sc.nextLine();
+		String retrieveQuestionId = "{call INSERT_QUESTION_AND_RETURN_ID(?,?,?,?,?,?,?)}";
+		callableStatement = con.prepareCall(retrieveQuestionId);
+		callableStatement.setString(1, type);
+		callableStatement.setString(2, text);
+		callableStatement.setString(3, topic);
+		callableStatement.setInt(4, dl);
+		callableStatement.setString(5, hint);
+		callableStatement.setString(6, exp);
+		callableStatement.registerOutParameter(7, OracleTypes.CURSOR);
+		callableStatement.executeUpdate();
+		rs = (ResultSet) callableStatement.getObject(7);
+		int questionId = 0; 
+		while(rs.next()){
+			questionId = rs.getInt("ret_id");
+		}
+		cg.closeResult(rs);
+		cg.closeStatement(callableStatement);
+		stmt = con.prepareStatement("INSERT into QUESTION_BANK values (?,?)");
+		stmt.setString(1, course);
+		stmt.setInt(2, questionId);
+		stmt.executeUpdate();
+		cg.closeStatement(stmt);
+		if(type.equals("P")){
+            System.out.println("How many sets of parameters?");
+            int no = sc.nextInt();
+            sc.nextLine();
+            String params = "";
+            System.out.println("Enter parameters one-by-one as comma separated values");
+            for(int i=1; i <= no; i++){
+            	System.out.println("Enter Parameter set no: " + i);
+            	params = sc.nextLine();
+            	String qrp = combine(text,params);
+            	System.out.println("Enter the number of correct answers: ");
+            	int nc = sc.nextInt();
+            	sc.nextLine();
+            	for(int j=1; j <= nc;j++){
+            		System.out.println("Enter correct answer no:" + j);
+            		String ans = sc.nextLine();
+            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,1)");
+            		stmt.setInt(1, questionId);
+            		stmt.setString(2, qrp);
+            		stmt.setString(3, ans);
+            		stmt.executeUpdate();
+            		cg.closeStatement(stmt);
+            	}
+            	System.out.println("Enter the number of incorrect answers: ");
+            	int nic = sc.nextInt();
+            	sc.nextLine();
+            	for(int j=1; j <= nic;j++){
+            		System.out.println("Enter incorrect answer no:" + j);
+            		String ans = sc.nextLine();
+            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,0)");
+            		stmt.setInt(1, questionId);
+            		stmt.setString(2, qrp);
+            		stmt.setString(3, ans);
+            		stmt.executeUpdate();
+            		cg.closeStatement(stmt);
+            	}
+            	
+            }
+            
+            
+		}
+		else{
+			System.out.println("Enter the number of correct answers: ");
+        	int nc = sc.nextInt();
+        	sc.nextLine();
+        	for(int j=1; j <= nc;j++){
+        		System.out.println("Enter correct answer no:" + j);
+        		String ans = sc.nextLine();
+        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,1)");
+        		stmt.setInt(1, questionId);
+        		stmt.setString(2, text);
+        		stmt.setString(3, ans);
+        		stmt.executeUpdate();
+        		cg.closeStatement(stmt);
+        	}
+        	System.out.println("Enter the number of incorrect answers: ");
+        	int nic = sc.nextInt();
+        	sc.nextLine();
+        	for(int j=1; j <= nic;j++){
+        		System.out.println("Enter incorrect answer no:" + j);
+        		String ans = sc.nextLine();
+        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,0)");
+        		stmt.setInt(1, questionId);
+        		stmt.setString(2, text);
+        		stmt.setString(3, ans);
+        		stmt.executeUpdate();
+        		cg.closeStatement(stmt);
+        	}
+		}
 		
+		//String q = sc.nextLine();
 		
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private static String combine(String text, String params) {
+		// TODO Auto-generated method stub
+		String [] sArray = params.split(",");
+		int ct = 0;
+		while(text.indexOf("<?>") != -1){
+            text = text.replace("<?>",sArray[ct]);
+            ct++;
+		}
+		return text;
 	}
 
 	private static void viewAddCourses() {
