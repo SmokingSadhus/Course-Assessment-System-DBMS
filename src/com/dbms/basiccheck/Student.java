@@ -280,7 +280,7 @@ public class Student {
     		ResultSet rs=null;
     		int attempt_id=0;
     		int attempt_number=0;
-    		int retries;
+    		int retries = 0;
     		int total_points=0;
     		int correct_points=0;
     		int wrong_points=0;
