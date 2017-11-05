@@ -130,34 +130,46 @@ public class Student {
 			ResultSet rs = null;
 			System.out.println("Press 0 to go back");
 			System.out.println("The courses enrolled by you are:");
+			List<String> courses = new ArrayList<String>();
 			try {
 				stmt=con.prepareStatement("SELECT course_id FROM course_student WHERE student_id = ? ");
 				stmt.setString(1, username);
 				rs=stmt.executeQuery();
-				int i=0;
+				//int i=0;
 				while (rs.next()) {
-					System.out.println(++i + ". " +  rs.getString("course_id"));
+					courses.add(rs.getString("COURSE_ID"));
+					//System.out.println(++i + ". " +  rs.getString("course_id"));
 				}
+				for(int i=1; i <= courses.size();i++){
+					 System.out.println(i + ": " + courses.get(i-1));
+				 }
 			}
 			catch(Exception e) {
-				e.printStackTrace();
+				System.out.println("Encountered an Error: "+e.getMessage());
+				viewAddCourses();
 			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
 			System.out.println("Enter course id to view the course details:");
-			String temp=sc.next();
-			if (!isNumber(temp)) {
+			int temp=sc.nextInt();
+			String tempCourse = courses.get(temp - 1);
+			if (!isNumber(tempCourse)) {
 				System.out.println("choose one of the following options");
 			    System.out.println("1. Current Open Homeworks");
 			    System.out.println("2. Past Homeworks");
 			    System.out.println("Press 0 to go back");
 			    int temp1 = sc.nextInt();
+			    java.sql.Date stDateSqlFormat = null;
 			    if (temp1==1) {
 			    	System.out.println("All open homeworks are:");
 			    	try {
 			    		stmt=con.prepareStatement("SELECT e.exercise_id FROM exercise e, course_student cs WHERE e.course_id=cs.course_id AND e.deadline > ? AND cs.student_id = ? ");
-			    		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-			    		stmt.setString(1, df.format(new Date()));
+			    		//DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+			    		//java.sql.Date stDateSqlFormat = null;
+			    		Date startDate = new Date();
+			    		stDateSqlFormat = new java.sql.Date(startDate.getTime());
+			    		stmt.setDate(1, stDateSqlFormat);
+			    		
 			    		stmt.setString(2, username);
 			    		rs=stmt.executeQuery();
 			    		int i=0;
@@ -166,7 +178,8 @@ public class Student {
 			    		}
 			    	}
 			    	catch(Exception e) {
-						e.printStackTrace();
+			    		System.out.println("Encountered an Error: "+e.getMessage());
+						viewAddCourses(); 
 					}
 			    	cg.closeStatement(stmt);
 					cg.closeResult(rs);
@@ -174,22 +187,25 @@ public class Student {
 					int ex_id = sc.nextInt();
 					if (ex_id!=0) {
 						try {
-							stmt=con.prepareStatement("Select sc_mode FROM exercise WHERE exercise_id = ?");
+							stmt=con.prepareStatement("Select sc_mode,retries FROM exercise WHERE exercise_id = ?");
 							stmt.setInt(1, ex_id);
 							rs=stmt.executeQuery();
 							while(rs.next()) {
 								if(rs.getString("sc_mode").equals("standard")) {
-									takeStandardTest(ex_id);
+									int retriesAllowed = rs.getInt("retries");
+									takeStandardTest(ex_id,retriesAllowed);
 									viewAddCourses();
 								}
 								else if(rs.getString("sc_mode").equals("adaptive")) {
-									takeAdaptiveTest(ex_id);
+									int retriesAllowed = rs.getInt("retries");
+									takeAdaptiveTest(ex_id,retriesAllowed);
 									viewAddCourses();
 								}
 							}
 						}
 						catch(Exception e){
-							e.printStackTrace();
+							System.out.println("Encountered an Error: "+e.getMessage());
+							viewAddCourses();
 						}
 						cg.closeStatement(stmt);
 						cg.closeResult(rs);
@@ -210,19 +226,28 @@ public class Student {
 					
 			    }
 			    else if (temp1==2) {
+			    	java.sql.Date deadlineSqlDate = null;
 			    	try {
-			    		stmt=con.prepareStatement("SELECT e.start_date, e.end_date, e.sc_mode, (e.total_questions * e.points) AS total_points, e.scoring_policy, e.retries - max(a_s.number_of_attempts) AS available_attempts, max(a_s.number_of_attempts) AS attempts_by_student FROM exercise e, attempt_submission a_s WHERE a_s.exercise_id=e.exercise_id AND a_s.student_id = ?");
+			    		stmt=con.prepareStatement("SELECT e.start_date, e.end_date, e.sc_mode,(e.total_questions * e.points) AS total_points,e.scoring_policy,e.retries - (Select count(Attempt_Id) from Attempt_Submission where Exercise_Id = e.Exercise_id AND student_id = ?) AS available_attempts,(Select count(Attempt_Id) from Attempt_Submission where Exercise_Id = e.Exercise_id AND student_id = ?) as attempts_by_student FROM exercise e, attempt_submission a_s WHERE a_s.exercise_id=e.exercise_id AND a_s.student_id = ? and e.DEADLINE < ?");
 			    		stmt.setString(1, username);
+			    		stmt.setString(2, username);
+			    		stmt.setString(3, username);
+			    		Date startDate = new Date();
+			    		deadlineSqlDate = new java.sql.Date(startDate.getTime());
+			    		stmt.setDate(4, deadlineSqlDate);
 			    		rs=stmt.executeQuery();
+			    		System.out.println("Past Homeworks for the course:");
 			    		while (rs.next()) {
 			    			System.out.println(rs.getString("start_date")+"  "+rs.getString("end_date")+"  "+rs.getString("sc_mode")+"  "+rs.getString("total_points")+"  "+rs.getString("scoring_policy")+"  "+rs.getString("avaiable_attempts")+"  "+rs.getString("attempts_by_student"));
 			    		}
+			    		cg.closeStatement(stmt);
+						cg.closeResult(rs);
 			    	}
 			    	catch(Exception e) {
-						e.printStackTrace();
+			    		System.out.println("Encountered an Error: "+e.getMessage());
+						viewAddCourses();
 					}	
-			    	cg.closeStatement(stmt);
-					cg.closeResult(rs);
+			    	
 					System.out.println("Enter 0 to go back");
 					int isZero = 1;
 					while(isZero != 0){
@@ -245,7 +270,7 @@ public class Student {
 			}
 
 			else { 
-				if (Integer.parseInt(temp)==0)
+				if (Integer.parseInt(tempCourse)==0)
 		    	homePage();
 				else {
 					int isZero = 1;
@@ -272,7 +297,7 @@ public class Student {
     	    return true;
     	}
         
-        public static void takeStandardTest(int ex_id) {
+        public static void takeStandardTest(int ex_id, int retriesAllowed) {
         	List<String> questionsList = new ArrayList<String>();
         	List<SubmissionResult> srAttributes= new ArrayList<SubmissionResult>();
         	List<String> correctness=new ArrayList<String>();
@@ -280,56 +305,28 @@ public class Student {
     		ResultSet rs=null;
     		int attempt_id=0;
     		int attempt_number=0;
-    		int retries = 0;
+    		int retries = retriesAllowed;
     		int total_points=0;
     		int correct_points=0;
     		int wrong_points=0;
-    		boolean exercise_exists=false;
+    		//boolean exercise_exists=false;
     		try {
-	    		stmt=con.prepareStatement("SELECT count(1) AS exercise_exists FROM attempt_submission WHERE exercise_id = ?");
+	    		stmt=con.prepareStatement("SELECT count(NUMBER_OF_ATTEMPTS) AS number_of_attempts FROM attempt_submission WHERE exercise_id = ? And student_Id =?");
 	    		stmt.setInt(1, ex_id);
+	    		stmt.setString(2, username);
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
-	    			if (rs.getString("exercise_exists").equals("1")) exercise_exists=true; 
+	    			attempt_number = rs.getInt("number_of_attempts"); 
 	    		}
 	    	}
 	    	catch(Exception e) {
-				e.printStackTrace();
+	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		takeStandardTest(ex_id,retriesAllowed);
 			}	
         	cg.closeStatement(stmt);
 			cg.closeResult(rs);
 			
-			if (exercise_exists) {
-				try {
-		    		stmt=con.prepareStatement("SELECT number_of_attempts FROM attempt_submission WHERE exercise_id = ?");
-		    		stmt.setInt(1, ex_id);
-		    		rs=stmt.executeQuery();
-		    		while (rs.next()) {
-		    			attempt_number=Integer.parseInt(rs.getString("number_of_attempts")); 
-		    		}
-		    	}
-		    	catch(Exception e) {
-					e.printStackTrace();
-				}	
-	        	cg.closeStatement(stmt);
-				cg.closeResult(rs);
-			}
-			
-			try {
-	    		stmt=con.prepareStatement("SELECT retries FROM exercise WHERE exercise_id = ?");
-	    		stmt.setInt(1, ex_id);
-	    		rs=stmt.executeQuery();
-	    		while (rs.next()) {
-	    			retries=Integer.parseInt(rs.getString("retries")); 
-	    		}
-	    	}
-	    	catch(Exception e) {
-				e.printStackTrace();
-			}	
-        	cg.closeStatement(stmt);
-			cg.closeResult(rs);
-			
-			if (attempt_number >= retries) {
+			if (attempt_number >= retries && retries != -1) {
 				System.out.println("No more attempts left!!!");
 				return;
 			}
@@ -344,7 +341,8 @@ public class Student {
 	    		}
 	    	}
 	    	catch(Exception e) {
-				e.printStackTrace();
+	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		takeStandardTest(ex_id,retriesAllowed);
 			}	
         	cg.closeStatement(stmt);
 			cg.closeResult(rs);
@@ -365,7 +363,8 @@ public class Student {
 		    		}
 		    	}
 		    	catch(Exception e) {
-					e.printStackTrace();
+		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		takeStandardTest(ex_id,retriesAllowed);
 				}	
 	        	cg.closeStatement(stmt);
 				cg.closeResult(rs);				
@@ -382,7 +381,8 @@ public class Student {
 		    		}
 		    	}
 		    	catch(Exception e) {
-					e.printStackTrace();
+		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		takeStandardTest(ex_id,retriesAllowed);
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
@@ -395,7 +395,8 @@ public class Student {
 		    		}
 		    	}
 		    	catch(Exception e) {
-					e.printStackTrace();
+		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		takeStandardTest(ex_id,retriesAllowed);
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
@@ -426,9 +427,10 @@ public class Student {
 		    		}
 		    	}
 		    	catch(Exception e) {
-					e.printStackTrace();
+		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		takeStandardTest(ex_id,retriesAllowed);
 				}
-				SubmissionResult values=new SubmissionResult(i,questionText,answerAttempt,Integer.parseInt(answer_result));
+				SubmissionResult values=new SubmissionResult(Integer.parseInt(questionsList.get(i)),questionText,answerAttempt,Integer.parseInt(answer_result));
 				srAttributes.add(values);
 				
 				cg.closeStatement(stmt);
@@ -448,7 +450,8 @@ public class Student {
 	    			
 	    	}
 	    	catch(Exception e) {
-				e.printStackTrace();
+	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		takeStandardTest(ex_id,retriesAllowed);
 			}
 			
 			
@@ -458,20 +461,21 @@ public class Student {
 				else if(correctness.get(i).equals("1")) total_points+=correct_points;
 			}
 			
-			try {
-				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-	    		stmt=con.prepareStatement("INSERT INTO attempt_submission (exercise_id,student_id,submission_time,points,number_of_attempts) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
-	    		stmt.setInt(1, ex_id);
-	    		stmt.setString(2, username);
-	    		stmt.setString(3, df.format(new Date()));
-	    		stmt.setInt(4,total_points);
-	    		stmt.setInt(5, attempt_number);
-	    		rs=stmt.executeQuery();
-			}
-
-	    	catch(Exception e) {
-				e.printStackTrace();
-			}
+//			try {
+//				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+//	    		stmt=con.prepareStatement("INSERT INTO attempt_submission (exercise_id,student_id,submission_time,points,number_of_attempts) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
+//	    		stmt.setInt(1, ex_id);
+//	    		stmt.setString(2, username);
+//	    		stmt.setString(3, df.format(new Date()));
+//	    		stmt.setInt(4,total_points);
+//	    		stmt.setInt(5, attempt_number);
+//	    		rs=stmt.executeQuery();
+//			}
+//
+//	    	catch(Exception e) {
+//	    		System.out.println("Encountered an Error: "+e.getMessage());
+//	    		takeStandardTest(ex_id,retriesAllowed);
+//			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
 			CallableStatement callableStatement = null;
@@ -486,7 +490,7 @@ public class Student {
 				callableStatement.setInt(5, attempt_number);
 				callableStatement.registerOutParameter(6, OracleTypes.CURSOR);
 				callableStatement.executeUpdate();
-				rs = (ResultSet) callableStatement.getObject(7);
+				rs = (ResultSet) callableStatement.getObject(6);
 				
 				while(rs.next()){
 					attempt_id = rs.getInt("ret_id");
@@ -496,15 +500,18 @@ public class Student {
 			}
 
 	    	catch(Exception e) {
-				e.printStackTrace();
+	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		takeStandardTest(ex_id,retriesAllowed);
 			}
-			cg.closeStatement(stmt);
-			cg.closeResult(rs);
-			
+//			cg.closeStatement(stmt);
+//			cg.closeResult(rs);
+//			
 			for (int i=0; i<srAttributes.size();i++) {
 				SubmissionResult attribute=srAttributes.get(i);
+				stmt = null;
+				rs = null;
 				try {
-		    		stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
+		    		stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,?,?,?)");			    		
 		    		stmt.setInt(1, attempt_id );
 		    		stmt.setInt(2, attribute.questionId);
 		    		stmt.setString(3, attribute.question);
@@ -514,7 +521,8 @@ public class Student {
 				}
 
 		    	catch(Exception e) {
-					e.printStackTrace();
+		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		takeStandardTest(ex_id,retriesAllowed);
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
@@ -543,4 +551,3 @@ class SubmissionResult{
 		this.correct = correct;
 	}
 }
-
