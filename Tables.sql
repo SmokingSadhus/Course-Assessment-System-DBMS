@@ -520,6 +520,23 @@ END;
 /
 ALTER TRIGGER check_TA_is_enrolled ENABLE;
 
+CREATE OR REPLACE TRIGGER check_not_TA
+  BEFORE INSERT OR UPDATE ON course_student
+  FOR EACH ROW
+DECLARE
+  isGrad number;
+BEGIN
+select count(*) into isGrad from TA cs where cs.STUDENT_ID = :NEW.STUDENT_ID and cs.COURSE_ID = :NEW.COURSE_ID and rownum = 1;
+if ( isGrad <> 0)
+--if ( :NEW.STUDENT_ID >= 1)
+then 
+Raise_Application_Error(-20000, 'TA cannot be enrolled as a Student');
+--insert into tp values(1);
+END IF;
+END;
+/
+ALTER TRIGGER check_not_TA ENABLE;
+
 -------------------------------------------
 
 CREATE or REPLACE PROCEDURE SELECT_PROFESSOR_OPTIONS(c_id IN VARCHAR, p_id IN VARCHAR, prc OUT sys_refcursor) 
