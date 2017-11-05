@@ -1,5 +1,6 @@
 package com.dbms.basiccheck;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,6 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+
+import oracle.jdbc.OracleTypes;
+
 import java.util.Date;
 import java.util.Collections;
 import java.text.SimpleDateFormat;
@@ -167,11 +171,11 @@ public class Student {
 			    	cg.closeStatement(stmt);
 					cg.closeResult(rs);
 					System.out.println("Enter Exercise ID to attempt or enter 0 to go back");
-					String ex_id = sc.next();
-					if (!isNumber(ex_id)) {
+					int ex_id = sc.nextInt();
+					if (ex_id!=0) {
 						try {
 							stmt=con.prepareStatement("Select sc_mode FROM exercise WHERE exercise_id = ?");
-							stmt.setString(1, ex_id);
+							stmt.setInt(1, ex_id);
 							rs=stmt.executeQuery();
 							while(rs.next()) {
 								if(rs.getString("sc_mode").equals("standard")) {
@@ -191,7 +195,7 @@ public class Student {
 						cg.closeResult(rs);
 					}
 					else {
-						if (Integer.parseInt(ex_id)==0)
+						if (ex_id==0)
 							viewAddCourses();
 						else {
 							int isZero = 1;
@@ -268,13 +272,72 @@ public class Student {
     	    return true;
     	}
         
-        public static void takeStandardTest(String ex_id) {
+        public static void takeStandardTest(int ex_id) {
         	List<String> questionsList = new ArrayList<String>();
+        	List<SubmissionResult> srAttributes= new ArrayList<SubmissionResult>();
+        	List<String> correctness=new ArrayList<String>();
         	PreparedStatement stmt= null;
     		ResultSet rs=null;
+    		int attempt_id=0;
+    		int attempt_number=0;
+    		int retries;
+    		int total_points=0;
+    		int correct_points=0;
+    		int wrong_points=0;
+    		boolean exercise_exists=false;
+    		try {
+	    		stmt=con.prepareStatement("SELECT count(1) AS exercise_exists FROM attempt_submission WHERE exercise_id = ?");
+	    		stmt.setInt(1, ex_id);
+	    		rs=stmt.executeQuery();
+	    		while (rs.next()) {
+	    			if (rs.getString("exercise_exists").equals("1")) exercise_exists=true; 
+	    		}
+	    	}
+	    	catch(Exception e) {
+				e.printStackTrace();
+			}	
+        	cg.closeStatement(stmt);
+			cg.closeResult(rs);
+			
+			if (exercise_exists) {
+				try {
+		    		stmt=con.prepareStatement("SELECT number_of_attempts FROM attempt_submission WHERE exercise_id = ?");
+		    		stmt.setInt(1, ex_id);
+		    		rs=stmt.executeQuery();
+		    		while (rs.next()) {
+		    			attempt_number=Integer.parseInt(rs.getString("number_of_attempts")); 
+		    		}
+		    	}
+		    	catch(Exception e) {
+					e.printStackTrace();
+				}	
+	        	cg.closeStatement(stmt);
+				cg.closeResult(rs);
+			}
+			
+			try {
+	    		stmt=con.prepareStatement("SELECT retries FROM exercise WHERE exercise_id = ?");
+	    		stmt.setInt(1, ex_id);
+	    		rs=stmt.executeQuery();
+	    		while (rs.next()) {
+	    			retries=Integer.parseInt(rs.getString("retries")); 
+	    		}
+	    	}
+	    	catch(Exception e) {
+				e.printStackTrace();
+			}	
+        	cg.closeStatement(stmt);
+			cg.closeResult(rs);
+			
+			if (attempt_number >= retries) {
+				System.out.println("No more attempts left!!!");
+				return;
+			}
+				
+			
         	try {
 	    		stmt=con.prepareStatement("SELECT question_id FROM exercise_question WHERE exercise_id = ?");
-	    		stmt.setString(1, ex_id);
+	    		stmt.setInt(1, ex_id);
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
 	    			questionsList.add(rs.getString("question_id"));
@@ -292,10 +355,10 @@ public class Student {
 				List<String> answersWrongList=new ArrayList<String>();
 				HashMap<Integer,String> h_options=new HashMap<>();
 				String answerAttempt=null;
-				String answer_result=null;
+				String answer_result= null;
 				try {
-		    		stmt=con.prepareStatement("SELECT * FROM question_param_answer WHERE question_id = ?");
-		    		stmt.setString(1, ex_id);
+		    		stmt=con.prepareStatement("SELECT question FROM question_param_answer WHERE question_id = ?");
+		    		stmt.setInt(1, Integer.parseInt(questionsList.get(i)));
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			questionsTextList.add(rs.getString("question"));
@@ -359,44 +422,110 @@ public class Student {
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			answer_result=rs.getString("correct");
+		    			correctness.add(answer_result);
 		    		}
 		    	}
+		    	catch(Exception e) {
+					e.printStackTrace();
+				}
+				SubmissionResult values=new SubmissionResult(i,questionText,answerAttempt,Integer.parseInt(answer_result));
+				srAttributes.add(values);
+				
+				cg.closeStatement(stmt);
+				cg.closeResult(rs);
+			}
+			
+			attempt_number++;
+			
+			try {
+	    		stmt=con.prepareStatement("SELECT points,penalty FROM exercise WHERE exercise_id=?");			    		
+	    		stmt.setInt(1, ex_id);
+	    		rs=stmt.executeQuery();
+	    		while (rs.next()) {
+	    			correct_points=Integer.parseInt(rs.getString("points"));
+	    			wrong_points=Integer.parseInt(rs.getString("penalty"));
+	    		}
+	    			
+	    	}
+	    	catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			
+			for (int i=0;i<correctness.size();i++) {
+				if(correctness.get(i).equals("0")) total_points-=wrong_points;
+				else if(correctness.get(i).equals("1")) total_points+=correct_points;
+			}
+			
+			try {
+				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+	    		stmt=con.prepareStatement("INSERT INTO attempt_submission (exercise_id,student_id,submission_time,points,number_of_attempts) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
+	    		stmt.setInt(1, ex_id);
+	    		stmt.setString(2, username);
+	    		stmt.setString(3, df.format(new Date()));
+	    		stmt.setInt(4,total_points);
+	    		stmt.setInt(5, attempt_number);
+	    		rs=stmt.executeQuery();
+			}
+
+	    	catch(Exception e) {
+				e.printStackTrace();
+			}
+			cg.closeStatement(stmt);
+			cg.closeResult(rs);
+			CallableStatement callableStatement = null;
+			try {
+				DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+				String retrieveAttemptId = "{call INSERT_AS_AND_RETURN_ID(?,?,?,?,?,?)}";
+				callableStatement = con.prepareCall(retrieveAttemptId);
+				callableStatement.setInt(1,ex_id);
+				callableStatement.setString(2, username);
+				callableStatement.setString(3, df.format(new Date()));
+				callableStatement.setInt(4, total_points);
+				callableStatement.setInt(5, attempt_number);
+				callableStatement.registerOutParameter(6, OracleTypes.CURSOR);
+				callableStatement.executeUpdate();
+				rs = (ResultSet) callableStatement.getObject(7);
+				
+				while(rs.next()){
+					attempt_id = rs.getInt("ret_id");
+				}
+				cg.closeResult(rs);
+				cg.closeStatement(callableStatement);
+			}
+
+	    	catch(Exception e) {
+				e.printStackTrace();
+			}
+			cg.closeStatement(stmt);
+			cg.closeResult(rs);
+			
+			for (int i=0; i<srAttributes.size();i++) {
+				SubmissionResult attribute=srAttributes.get(i);
+				try {
+		    		stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
+		    		stmt.setInt(1, attempt_id );
+		    		stmt.setInt(2, attribute.questionId);
+		    		stmt.setString(3, attribute.question);
+		    		stmt.setString(4,attribute.answer);
+		    		stmt.setInt(5, attribute.correct);
+		    		rs=stmt.executeQuery();
+				}
+
 		    	catch(Exception e) {
 					e.printStackTrace();
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
 			}
-				if (answer_result.equals("0")) {
-					
-					try {
-						DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-			    		stmt=con.prepareStatement("INSERT INTO attempt_submission (exercise_id,student_id,submission_time,number_of_attempts) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?)");			    		
-			    		stmt.setString(1, ex_id);
-			    		stmt.setString(2, username);
-			    		stmt.setString(3, df.format(new Date()));
-			    		stmt.setString(4, );
-			    		
-			    		rs=stmt.executeQuery();
-			    		while (rs.next()) {
-			    			
-			    		}
-			    			
-			    	}
-			    	catch(Exception e) {
-						e.printStackTrace();
-					}
-					cg.closeStatement(stmt);
-					cg.closeResult(rs);
-				}
-				else if (answer_result == "1") {
-					
-				}
-				
-			     	
+			
+			
+	     	
         }
         
-        public static void takeAdaptiveTest(String ex_id) {
+        public static void takeAdaptiveTest(int ex_id) {
+        	
         	
         }
 
