@@ -62,7 +62,8 @@ public class Professor {
 			viewAddCourses();
 		}
 		else if(optionSelected.equals("Enroll/Drop A Student")){
-			System.out.println("Enroll/Drop A Student");	
+			//System.out.println("Enroll/Drop A Student");
+			enrollDropOption();
 		}
 		else if (optionSelected.equals("Search/Add questions to Question Bank")){
 			 addQuestionToBank();
@@ -317,31 +318,29 @@ public class Professor {
 		for(int i=1; i <= courses.size();i++){
 		System.out.println(i + ": " + courses.get(i-1));	
 		}
-		
+		int newOption = courses.size()+1;
 		boolean done = false;
+		
 		while(!done){
-		System.out.println("Enter Course ID to view the course");
-		System.out.println("Press 1 to add a new course");
+		System.out.println("Enter number to view the course");
+		System.out.println("Press "+ newOption + " to add a new course");
 		System.out.println("Press 0 to go back to previous menu");
-		String ip = sc.nextLine();
-		//ip ="CSC 540";
-		//String ip = sc.next();
-		if(isNumber(ip)){
-			int no = Integer.parseInt(ip);
-			if(no == 1){
+		int selOption = sc.nextInt();
+		sc.nextLine();
+			if(selOption == newOption){
 				done = true;
 				System.out.println("add course");
-				//addCourse();
+				addCourse();
 			}
-			else if(no == 0){
+			else if(selOption == 0){
 				done = true;
 				homePage();
 			}
 			
-		}else{
+		else if(selOption <= courses.size()){
 			done = true;
 			//System.out.println("view specific course");
-			viewSpecificCourse(ip);
+			viewSpecificCourse(courses.get(selOption-1));
 		}
 		
 	}
@@ -350,7 +349,7 @@ public class Professor {
 	private static void viewSpecificCourse(String courseId) {
 		// TODO Auto-generated method stub
 		
-		String getRelevantOptions = "{call SELECT_PROFESSOR_OPTIONS(?,?,?)}";
+		String getRelevantOptions = "{call SELECT_PROFESSOR_OPTIONS(?,?,?,?)}";
 		CallableStatement callableStatement = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -358,9 +357,10 @@ public class Professor {
 			callableStatement = con.prepareCall(getRelevantOptions);
 			callableStatement.setString(1, courseId);
 			callableStatement.setString(2, username);
-			callableStatement.registerOutParameter(3, OracleTypes.CURSOR);
+			callableStatement.setString(3, "View Course");
+			callableStatement.registerOutParameter(4, OracleTypes.CURSOR);
 			callableStatement.executeUpdate();
-			rs = (ResultSet) callableStatement.getObject(3);
+			rs = (ResultSet) callableStatement.getObject(4);
 			List<String> options = new ArrayList<String>();
 			while (rs.next()) {
 
@@ -436,15 +436,7 @@ public class Professor {
 		
 	}
 
-	private static void addTA(String courseId) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	private static void viewTA(String courseId) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	private static void addExercise(String courseId) {
 		// TODO Auto-generated method stub
@@ -544,7 +536,8 @@ public class Professor {
 	    	 
 	     }
 	     else {
-	    	addQuestionsToExercise(courseId,noQuestions,exId); 
+	    	addQuestionsToExercise(courseId,noQuestions,exId);
+	    	viewSpecificCourse(courseId);
 	     }
 		}
 	    
@@ -783,7 +776,7 @@ public class Professor {
 		}
 		
 		System.out.println("Created Exercise successfully.");
-		viewSpecificCourse(courseId);
+		
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -819,6 +812,7 @@ public class Professor {
 	    		 viewSpecificCourse(courseId);
 	    	 }
 	    	 else{
+	    		 done = true;
 	    		 viewSpecificExercise(no, courseId);
 	    	 }
 	    	 
@@ -843,7 +837,7 @@ public class Professor {
 		try{
 		stmt=con.prepareStatement("SELECT SC_MODE FROM EXERCISE where EXERCISE_ID = ?");
 		 stmt.setInt(1, exId);
-	     rs = stmt.executeQuery();
+		 rs = stmt.executeQuery();
 	     String mode = "";
 	     while(rs.next()){
 	    	 mode = rs.getString("SC_MODE");
@@ -854,15 +848,75 @@ public class Professor {
 	     if(mode.equals("ADAPTIVE")){
 	    	 stmt=con.prepareStatement("SELECT t.name FROM ADAPTIVE_EXERCISE_TOPIC aet inner join Topic t on aet.topic_id = t.topic_id  where aet.EXERCISE_ID = ?");
 	    	 stmt.setInt(1, exId);
+	    	 rs = stmt.executeQuery();
 	    	 String topic = "";
 		     while(rs.next()){
 		    	 topic = rs.getString("name");
 		    	}
+		     cg.closeResult(rs);
+		     cg.closeStatement(stmt);
 		     System.out.println("Exercise is adaptive and topic is: " + topic);
-	    	 
+		     viewExercise(courseId);
 	     }
 	     else{
-	    	 stmt=con.prepareStatement("SELECT EQ.QUESTION_ID, Q.QUESTION_TEXT, Q.DIFFICULTY_LEVEL, Q.HINT, Q.EXPLANATION, Q.TOPIC_ID FROM EXERCISE_QUESTION EQ inner join QUESTION Q on EQ.QUESTION_ID = Q.QUESTION_ID where EQ.EXERCISE_ID = 1 ");
+	    	 
+             System.out.println("Here are the questions: ");	    	
+	    	 stmt = con.prepareStatement("SELECT q.QUESTION_ID, q.QUESTION_TEXT from EXERCISE_QUESTION eq inner join QUESTION q on eq.QUESTION_ID = q.QUESTION_ID where eq.EXERCISE_ID = ?");
+	    	 stmt.setInt(1, exId);
+	    	 rs = stmt.executeQuery();
+	    	 while(rs.next()){
+		    	 System.out.println(rs.getString("QUESTION_ID") + ": " + rs.getString("QUESTION_TEXT"));
+		    	}
+	    	 cg.closeResult(rs);
+	    	 cg.closeStatement(stmt);
+	    	 
+	    	 System.out.println("Press 0 to go to previous screen.");
+	    	String getRelevantOptions = "{call SELECT_PROFESSOR_OPTIONS(?,?,?,?)}";
+	 		CallableStatement callableStatement = null;
+	 		callableStatement = con.prepareCall(getRelevantOptions);
+	 		callableStatement.setString(1, courseId);
+	 		callableStatement.setString(2, username);
+	 		callableStatement.setString(3, "viewSpecificExercise");
+	 		callableStatement.registerOutParameter(4, OracleTypes.CURSOR);
+	 		callableStatement.executeUpdate();
+	 		rs = (ResultSet) callableStatement.getObject(4);
+	 		List<String> options = new ArrayList<String>();
+	 		while (rs.next()) {
+	 				// System.out.println(rs.getString("col_name"));
+	 				options.add(rs.getString("col_name"));
+
+	 			}
+	 			cg.closeResult(rs);
+	 			cg.closeStatement(callableStatement);
+	 			for(int i=1; i <= options.size(); i++){
+	 					System.out.println(i + ": " + options.get(i-1));
+	 				}
+	 			int choice = sc.nextInt();
+	 			sc.nextLine();
+	 			if(choice == 0){
+	 				viewExercise(courseId);
+	 			}
+	 			else if(choice == 1){
+	 				
+	 				addQuestionsToExercise(courseId,1,exId);
+	 				System.out.println("Successfully added.");
+	 				viewSpecificExercise(exId,courseId);
+	 				
+	 			}
+	 			else if(choice == 2){
+	 				System.out.println("Enter the Question ID to be deleted. ");
+	 				int id = sc.nextInt();
+	 				sc.nextLine();
+	 				stmt = con.prepareStatement("delete from EXERCISE_QUESTION where exercise_id = ? and question_id = ?");
+	 				stmt.setInt(1, exId);
+	 				stmt.setInt(2, id);
+	 				stmt.executeUpdate();
+	 				System.out.println("Successfully deleted.");
+	 				viewSpecificExercise(exId,courseId);
+	 			}
+	 	
+	    	 
+	    	 
 	     }
 	     
 	     }
@@ -874,9 +928,166 @@ public class Professor {
 	}
 
 	private static void addCourse() {
-		// TODO Auto-generated method stub
+		PreparedStatement stmt = null;
+		try{
+			System.out.println("0. Go back to previous page");
+			System.out.println("1. Create New Course");
+			int opt = sc.nextInt();
+			sc.nextLine();
+			if(opt == 0){
+				viewAddCourses();
+			}
+			else if(opt == 1){
+			System.out.println("Enter unique Identifier for the Course: ");
+			String courseId = sc.nextLine();
+			System.out.println("Enter name for the course: ");
+			String courseName = sc.nextLine();
+			System.out.println("Enter Start Date (MM/dd/yyyy) for the Course :");
+			String stDate = sc.nextLine();
+			//Date startDate = null;
+			java.sql.Date stDateSqlFormat = null;
+			try{
+				Date startDate = new SimpleDateFormat("MM/dd/yyyy").parse(stDate);
+				stDateSqlFormat = new java.sql.Date(startDate.getTime());
+			}
+			catch(Exception e){
+				System.out.println("Error parsing Date");
+				stDateSqlFormat = null;
+			}
+			System.out.println("Enter End Date (MM/dd/yyyy) for the Course");
+			String endDate = sc.nextLine();
+			java.sql.Date endDateSqlFormat = null;
+			try{
+				Date enddate = new SimpleDateFormat("MM/dd/yyyy").parse(endDate);
+				endDateSqlFormat = new java.sql.Date(enddate.getTime());
+			}
+			catch(Exception e){
+				System.out.println("Error parsing End Date");
+				endDateSqlFormat = null;
+			}
+			stmt=con.prepareStatement("INSERT INTO COURSE values (?,?,?,?,?)");
+			 stmt.setString(1, courseId);
+			 stmt.setString(2, courseName);
+			 stmt.setDate(3, stDateSqlFormat);
+			 stmt.setDate(4, endDateSqlFormat);
+			 stmt.setString(5, username);
+			 stmt.executeUpdate();
+			}
+		}
+		catch(Exception e){
+			System.out.println("Encountered Error: "+e.getMessage());
+			viewAddCourses();
+		}
+		viewAddCourses();
+		
+	}	
+	
+	private static void viewTA(String courseId) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+		 stmt=con.prepareStatement("SELECT STUDENT_ID from TA where COURSE_ID = ?");
+		 stmt.setString(1, courseId);
+	     rs = stmt.executeQuery();
+	     System.out.println("Choose 0 to return to course: "+courseId);
+	     
+	     List<String> tas = new ArrayList<String>();
+	     while(rs.next()){
+	    	 tas.add(rs.getString("STUDENT_ID"));
+		}
+	     for(int i=1; i <= tas.size();i++){
+			 System.out.println(i + ": " + tas.get(i-1));
+		 }
+	     System.out.println("Choose TA to remove or press 0 to return to course:" + courseId);
+		 int choice  = sc.nextInt();
+		 sc.nextLine();
+		 if(choice == 0){
+			 viewSpecificCourse(courseId);
+		 }
+		 else{
+			 String taId = tas.get(choice-1);
+			 DeleteTA(taId,courseId);
+			 System.out.println("TA "+ taId+" removed from Course: "+courseId);
+			 viewTA(courseId);
+			 //viewSpecificCourse(courseId);
+		 }
+		}
+		catch(Exception e){
+			System.out.println("Encountered Error: "+e.getMessage());
+			viewSpecificCourse(courseId);
+		}
 		
 	}
+
+	private static void DeleteTA(String taId, String courseId) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+		 stmt=con.prepareStatement("DELETE from TA where COURSE_ID = ? AND STUDENT_ID = ?");
+		 stmt.setString(1, courseId);
+		 stmt.setString(2,taId);
+	     rs = stmt.executeQuery();
+		}
+		catch(Exception e){
+			System.out.println("Encountered Error: "+e.getMessage());
+			viewTA(courseId);
+		}
+		
+	}
+/*
+*Add TA to a coursee
+*/
+private static void addTA(String courseId) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+			 stmt=con.prepareStatement("SELECT STUDENT_ID,NAME from STUDENT where IS_GRAD = ?");
+			 stmt.setInt(1, 1);
+		     rs = stmt.executeQuery();
+		     System.out.println("Choose 0 to return to course: "+courseId);
+		     List<String> students = new ArrayList<String>();
+		     while(rs.next()){
+		    	 students.add(rs.getString("STUDENT_ID"));
+			}
+		     for(int i=1; i <= students.size();i++){
+				 System.out.println(i + ": " + students.get(i-1));
+			 }
+		     System.out.println("Choose student to add as TA or press 0 to return to course:" + courseId);
+			 int choice  = sc.nextInt();
+			 sc.nextLine();
+			 if(choice == 0){
+				 viewSpecificCourse(courseId);
+			 }
+			 else{
+				 String sId = students.get(choice-1);
+				 addTAtoCourse(sId,courseId);
+				 System.out.println("Added +"+sId+" as TA to course: "+courseId);
+				 viewSpecificCourse(courseId);
+			 }
+			
+		     
+		}
+		catch(Exception e){
+			System.out.println("Encountered Error: "+e.getMessage());
+			viewSpecificCourse(courseId);
+		}
+	}
+
+	private static void addTAtoCourse(String sId, String courseId) {
+		PreparedStatement stmt = null;
+		try{
+			stmt = con.prepareStatement("INSERT into TA (COURSE_ID,STUDENT_ID) values (?,?)");
+			stmt.setString(1, courseId);
+			stmt.setString(2, sId);
+			stmt.executeUpdate();
+		}
+		catch(Exception e){
+			System.out.println("Encountered Error: "+e.getMessage());
+			viewSpecificCourse(courseId);
+		}
+	}
+		
+
 
 	private static boolean isNumber(String x){
 		try
@@ -945,5 +1156,210 @@ public class Professor {
 		homePage();
 		
 	}
+	
+	/*
+	  Required Enrollment Methods
+	  */
+	  private static void enrollDropOption() {
+			// TODO Auto-generated method stub
+			System.out.println("select 0 to go to home page.");
+			System.out.println("1: Enroll Student");
+			System.out.println("2: Drop Student");
+			int choice  = sc.nextInt();
+			 sc.nextLine();
+			 if(choice == 0){
+				 homePage();
+			 }
+			 
+			 else if(choice==1){
+				 enrollStudent();
+				// homePage();
+			 }
+			 else if(choice==2){
+				 enrollDropStudent();
+				 //homePage();
+			 }
+			// homePage(); 
+			
+		}
+
+		private static void enrollStudent() {
+			// TODO Auto-generated method stub
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			List<String> courses = new ArrayList<String>();
+			System.out.println("Select Course to enroll Student.");
+			try{
+				stmt=con.prepareStatement("SELECT COURSE_ID from COURSE where PROFESSOR_ID = ?");
+				stmt.setString(1, username);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		courses.add(rs.getString("COURSE_ID"));
+			   	}
+				 for(int i=1; i <= courses.size();i++){
+					 System.out.println(i + ": " + courses.get(i-1));
+				 }
+				 System.out.println("select 0 to go to home page.");
+				 int choice  = sc.nextInt();
+				 sc.nextLine();
+				 if(choice == 0){
+					 homePage();
+				 }
+				 else{
+					 String course = courses.get(choice-1);
+					 DisplayStudents(course);
+				 }
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		}
+
+
+		private static void DisplayStudents(String course) {
+			// TODO Auto-generated method stub
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			List<String> students = new ArrayList<String>();
+			System.out.println("Select student to enroll/drop from :" + course);
+			try{
+				stmt=con.prepareStatement("SELECT STUDENT_ID from STUDENT ");
+				//stmt.setString(1, course);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		students.add(rs.getString("STUDENT_ID"));
+			   	}
+			   	System.out.println("select 0 to go to previous page.");
+			   	for(int i=1; i <= students.size();i++){
+					 System.out.println(i + ": " + students.get(i-1));
+				 }
+			   	int choice  = sc.nextInt();
+				 sc.nextLine();
+				 if(choice == 0){
+					 homePage();
+				 }
+				 else{
+					 String studentId = students.get(choice-1);
+					 EnrollStudentToCourse(studentId,course);
+					 DisplayStudents(course);
+				 }
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		}
+
+		private static void EnrollStudentToCourse(String studentId, String course) {
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			try{
+				stmt = con.prepareStatement("INSERT into COURSE_STUDENT values (?,?)");
+				stmt.setString(1, course);
+				stmt.setString(2, studentId);
+				stmt.executeUpdate();
+				System.out.println("Enrolled "+studentId +" to "+course);
+			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+					
+		}
+
+		private static void enrollDropStudent() {
+			// TODO Auto-generated method stub
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			List<String> courses = new ArrayList<String>();
+			System.out.println("Select Course to drop Student.");
+			try{
+				stmt=con.prepareStatement("SELECT COURSE_ID from COURSE where PROFESSOR_ID = ?");
+				stmt.setString(1, username);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		courses.add(rs.getString("COURSE_ID"));
+			   	}
+				 for(int i=1; i <= courses.size();i++){
+					 System.out.println(i + ": " + courses.get(i-1));
+				 }
+				 System.out.println("select 0 to go to previous page.");
+				 int choice  = sc.nextInt();
+				 sc.nextLine();
+				 if(choice == 0){
+					 homePage();
+				 }
+				 else{
+					 String course = courses.get(choice-1);
+					 DisplayEnrolledStudents(course);
+					 
+				 }
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		}
+
+		private static void DisplayEnrolledStudents(String course) {
+			// TODO Auto-generated method stub
+			//System.out.println(course + "Display students");
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			List<String> students = new ArrayList<String>();
+			System.out.println("Select student to enroll/drop from :" + course);
+			try{
+				stmt=con.prepareStatement("SELECT STUDENT_ID from COURSE_STUDENT where COURSE_ID = ?");
+				stmt.setString(1, course);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		students.add(rs.getString("STUDENT_ID"));
+			   	}
+			   	if(students.size()==0){
+			   		System.out.println("No students enrolled");
+			   		
+			   		
+			   	}
+			   	System.out.println("select 0 to go to previous page.");
+			   	for(int i=1; i <= students.size();i++){
+					 System.out.println(i + ": " + students.get(i-1));
+				 }
+				 
+				 int choice  = sc.nextInt();
+				 sc.nextLine();
+				 if(choice == 0){
+					 homePage();
+				 }
+				 else{
+					 String studentId = students.get(choice-1);
+					 DropStudentFromCourse(studentId,course);
+					 DisplayEnrolledStudents(course);
+					 
+				 }
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			homePage();
+			
+		}
+
+		private static void DropStudentFromCourse(String studentId, String course) {
+			// TODO Auto-generated method stub
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			try{
+				stmt=con.prepareStatement("delete from COURSE_STUDENT where COURSE_ID = ? and STUDENT_ID= ?");
+				stmt.setString(1, course);
+				stmt.setString(2, studentId);
+				stmt.executeUpdate();
+				cg.closeStatement(stmt);
+			   	System.out.println("Successfully dropped");
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		}
 
 }
