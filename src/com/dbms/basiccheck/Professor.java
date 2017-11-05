@@ -69,11 +69,16 @@ public class Professor {
 			 addQuestionToBank();
 			//System.out.println("Search/Add questions to Question Bank");
 		}
-        
+		
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+
+	private static void viewReport() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private static void addQuestionToBank() {
@@ -153,6 +158,7 @@ public class Professor {
 		 }
 		 else if(choice == 2){
 			 addNewQuestions(course);
+			 displayQuestions(course);
 		 }
 		 
 		}
@@ -428,6 +434,20 @@ public class Professor {
 
 	private static void viewReport(String courseId) {
 		// TODO Auto-generated method stub
+		try{
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+	    stmt=con.prepareStatement("select s.student_id, s.name from COURSE_STUDENT cs  inner join STUDENT s on cs.student_id = s.student_id where course_id = ?");
+		 stmt.setString(1, courseId);
+		 rs = stmt.executeQuery();
+		 while(rs.next()){
+				System.out.println(rs.getString("topic_id") + ": " + rs.getString("name"));
+			}
+	    
+		}
+		catch(Exception e){
+			
+		}
 		
 	}
 
