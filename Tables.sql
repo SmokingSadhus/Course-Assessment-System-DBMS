@@ -583,16 +583,16 @@ END;
 ALTER TRIGGER Average_Difficulty_Level ENABLE;
 -------------------------------------------
 
-CREATE or REPLACE PROCEDURE SELECT_PROFESSOR_OPTIONS(c_id IN VARCHAR, p_id IN VARCHAR, prc OUT sys_refcursor) 
+CREATE or REPLACE PROCEDURE SELECT_PROFESSOR_OPTIONS(c_id IN VARCHAR, p_id IN VARCHAR, menuname IN VARCHAR ,prc OUT sys_refcursor) 
 As
 prof_id VARCHAR(20);
 begin
    select PROFESSOR_ID into prof_id from course  where course_id = c_id and rownum = 1;
    if (prof_id  <> p_id)
    then
-  open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = 'View Course' and shown_always = 1 order by DISPLAY_ORDER;
+  open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = menuname and shown_always = 1 order by DISPLAY_ORDER;
   else
-  open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = 'View Course' order by DISPLAY_ORDER;
+  open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = menuname order by DISPLAY_ORDER;
   end if;
 end ;
 -----Insert question and return ID--------------------

@@ -80,7 +80,9 @@ insert into MENU_OPTIONS values ('P','View Course','View TA',6,1);
 insert into MENU_OPTIONS values ('P','View Course','Add TA',7,0);
 insert into MENU_OPTIONS values ('P','View Course','Enroll/Drop Student',8,0);
 insert into MENU_OPTIONS values ('P','View Course','View Report',9,0);
-
+--viewSpecificExercise
+insert into MENU_OPTIONS values ('P','viewSpecificExercise','DELETE QUESTION',2,0);
+insert into MENU_OPTIONS values ('P','viewSpecificExercise','ADD QUESTION',1,0);
 
 insert into student values ('sjha4','SameerStud Jha',1);
 
@@ -155,6 +157,7 @@ select q.QUESTION_ID, q.QUESTION_TEXT from Question q where q.topic_id = 'T1'
 
 SELECT q.QUESTION_ID, q.QUESTION_TEXT from QUESTION_BANK qb inner join QUESTION q on qb.QUESTION_ID = q.QUESTION_ID where qb.COURSE_ID = 'CSC 540';
 
+SELECT q.QUESTION_ID, q.QUESTION_TEXT from EXERCISE_QUESTION eq inner join QUESTION q on eq.QUESTION_ID = q.QUESTION_ID where eq.EXERCISE_ID = ?;
 
 select * from EXERCISE
 select * from EXERCISE_QUESTION where EXERCISE_ID = 24
