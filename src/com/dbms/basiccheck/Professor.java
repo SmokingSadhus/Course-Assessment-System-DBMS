@@ -219,7 +219,7 @@ public class Professor {
             	for(int j=1; j <= nc;j++){
             		System.out.println("Enter correct answer no:" + j);
             		String ans = sc.nextLine();
-            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,1)");
+            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS (QUESTION_ID, QUESTION, ANSWER, CORRECT) values (?,?,?,1)");
             		stmt.setInt(1, questionId);
             		stmt.setString(2, qrp);
             		stmt.setString(3, ans);
@@ -232,7 +232,7 @@ public class Professor {
             	for(int j=1; j <= nic;j++){
             		System.out.println("Enter incorrect answer no:" + j);
             		String ans = sc.nextLine();
-            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,0)");
+            		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS (QUESTION_ID, QUESTION, ANSWER, CORRECT) values (?,?,?,0)");
             		stmt.setInt(1, questionId);
             		stmt.setString(2, qrp);
             		stmt.setString(3, ans);
@@ -251,7 +251,7 @@ public class Professor {
         	for(int j=1; j <= nc;j++){
         		System.out.println("Enter correct answer no:" + j);
         		String ans = sc.nextLine();
-        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,1)");
+        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS (QUESTION_ID, QUESTION, ANSWER, CORRECT) values (?,?,?,1)");
         		stmt.setInt(1, questionId);
         		stmt.setString(2, text);
         		stmt.setString(3, ans);
@@ -264,7 +264,7 @@ public class Professor {
         	for(int j=1; j <= nic;j++){
         		System.out.println("Enter incorrect answer no:" + j);
         		String ans = sc.nextLine();
-        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS values (?,?,?,0)");
+        		stmt = con.prepareStatement("INSERT into QUESTION_PARAM_ANSWERS (QUESTION_ID, QUESTION, ANSWER, CORRECT) values (?,?,?,0)");
         		stmt.setInt(1, questionId);
         		stmt.setString(2, text);
         		stmt.setString(3, ans);
