@@ -147,3 +147,31 @@ select * from QUESTION_PARAM_ANSWERs
 --and OBJECT_NAME='COURSE'
 
 Consider a disk with a <?>, <?>, <?>, <?>, <?>. What is the capacity of a track in bytes?
+SELECT q.QUESTION_ID, q.QUESTION_TEXT from QUESTION_BANK qb inner join QUESTION q on qb.QUESTION_ID = q.QUESTION_ID where qb.COURSE_ID = 'CSC 540';
+
+
+select q.QUESTION_ID, q.QUESTION_TEXT from Question q where q.topic_id = 'T1'
+
+
+SELECT q.QUESTION_ID, q.QUESTION_TEXT from QUESTION_BANK qb inner join QUESTION q on qb.QUESTION_ID = q.QUESTION_ID where qb.COURSE_ID = 'CSC 540';
+
+
+select * from EXERCISE
+select * from EXERCISE_QUESTION where EXERCISE_ID = 24
+
+select * from topic
+
+insert into topic values ('T3','Topic 3');
+insert into topic values ('T4','Topic 4');
+insert into topic values ('T5','Topic 5');
+
+select * from COURSE_TOPIC
+
+insert into course_topic values ('CSC 540','T1');
+insert into course_topic values ('CSC 540','T2');
+insert into course_topic values ('CSC 540','T4');
+insert into course_topic values ('CSC 540','T5');
+insert into course_topic values ('CSC 541','T1');
+insert into course_topic values ('CSC 541','T3');
+insert into course_topic values ('CSC 542','T4');
+insert into course_topic values ('CSC 542','T2');
