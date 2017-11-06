@@ -16,6 +16,23 @@ import java.util.Scanner;
 
 import oracle.jdbc.OracleTypes;
 
+class Exercise{
+	int exid;
+	String name;
+	public Exercise(int id, String name){
+		this.exid = id;
+		this.name = name;
+	}
+}
+class InnerStudent{
+	String id;
+	String name;
+	public InnerStudent(String id, String name){
+		this.id = id;
+		this.name = name;
+	}
+}
+
 public class Professor {
 	
 	  public static ConnectionGetter cg = null;
@@ -432,21 +449,70 @@ public class Professor {
 		
 	}
 
+
 	private static void viewReport(String courseId) {
 		// TODO Auto-generated method stub
 		try{
 	    PreparedStatement stmt = null;
 	    ResultSet rs = null;
 	    stmt=con.prepareStatement("select s.student_id, s.name from COURSE_STUDENT cs  inner join STUDENT s on cs.student_id = s.student_id where course_id = ?");
+		stmt.setString(1, courseId);
+		rs = stmt.executeQuery();
+		
+		
+		List<Exercise> listOfExercise = new ArrayList<Exercise>();
+		List<InnerStudent> listOfStudents = new ArrayList<InnerStudent>();
+		 while(rs.next()){
+				//System.out.println(rs.getString("topic_id") + ": " + rs.getString("name"));
+			 InnerStudent s = new InnerStudent(rs.getString("student_id"), rs.getString("name"));
+			 listOfStudents.add(s);
+			}
+		 cg.closeResult(rs);
+		 cg.closeStatement(stmt);
+		 
+		 stmt=con.prepareStatement("select exercise_id, name from exercise where course_id = ?");
 		 stmt.setString(1, courseId);
 		 rs = stmt.executeQuery();
 		 while(rs.next()){
-				System.out.println(rs.getString("topic_id") + ": " + rs.getString("name"));
-			}
-	    
+			 Exercise e = new Exercise(rs.getInt("exercise_id"), rs.getString("name"));
+			 listOfExercise.add(e);
+		 }
+		 cg.closeResult(rs);
+		 cg.closeStatement(stmt);
+		 
+		 for(int i=0; i <listOfStudents.size();i++ ){
+			 for(int j=0; j<listOfExercise.size();j++){
+				 InnerStudent is = listOfStudents.get(i);
+				 Exercise e = listOfExercise.get(j);
+				 //select SCORE from ATTEMPT_SUBMISSION where EXERCISE_ID = ? and STUDENT_ID = ? and rownum =1 order by NUMBER_OF_ATTEMPTS
+				 stmt=con.prepareStatement("select SCORE from ATTEMPT_SUBMISSION where EXERCISE_ID = ? and STUDENT_ID = ? and rownum =1 order by NUMBER_OF_ATTEMPTS");
+				 stmt.setInt(1, e.exid);
+				 stmt.setString(2, is.id);
+				 rs = stmt.executeQuery();
+				 Integer fScore = null;
+				 while(rs.next()){
+					 fScore = rs.getInt("SCORE");
+				 }
+				 String sc;
+				 if(fScore == null){
+					 sc = "NA";
+				 }
+				 else{
+					 sc = new String(""+fScore);
+				 }
+				 System.out.println("Student Name: " + is.name + "Exercise ID: "+e.exid +" Exercise Name: " + e.name + " Score: " + sc);
+			 }
+		 }
+		 int zer = 1;
+		 while(zer != 0){
+		 System.out.println("Enter 0 to go to previous page.");
+		 zer = sc.nextInt();
+		 sc.nextLine(); 
+		 }
+		 viewSpecificCourse(courseId);
 		}
 		catch(Exception e){
-			
+			e.printStackTrace();
 		}
 		
 	}
@@ -795,7 +861,7 @@ public class Professor {
 					
 		}
 		
-		System.out.println("Created Exercise successfully.");
+		//System.out.println("Created Exercise successfully.");
 		
 		}
 		catch(Exception e){
