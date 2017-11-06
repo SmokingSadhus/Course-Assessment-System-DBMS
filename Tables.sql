@@ -596,6 +596,7 @@ begin
   open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = menuname order by DISPLAY_ORDER;
   end if;
 end ;
+/
 -----Insert question and return ID--------------------
 
 CREATE OR REPLACE PROCEDURE INSERT_QUESTION_AND_RETURN_ID(q_type IN VARCHAR, q_text IN VARCHAR, topic_id IN VARCHAR, dl IN NUMBER, hint IN VARCHAR, exp IN VARCHAR, prc OUT sys_refcursor)
@@ -605,6 +606,7 @@ begin
 insert into QUESTION (QUESTION_TEXT,QUESTION_TYPE, TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values (q_text,q_type,topic_id,dl,hint,exp) returning QUESTION_ID into ret_id;
 open prc for select ret_id as ret_id from QUESTION where rownum = 1;
 end;
+/
 --------------------------------------------
 CREATE OR REPLACE PROCEDURE INSERT_EXERCISE_AND_RETURN_ID(COURSE_ID IN VARCHAR, NAME IN VARCHAR, DEADLINE IN VARCHAR ,TOTAL_QUESTIONS IN NUMBER,RETRIES IN NUMBER,START_DATE IN VARCHAR,END_DATE IN VARCHAR,POINTS IN NUMBER,PENALTY IN NUMBER,SCORING_POLICY IN VARCHAR,SC_MODE IN VARCHAR,prc OUT sys_refcursor)
 AS
@@ -613,6 +615,7 @@ begin
 insert into EXERCISE (COURSE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES, START_DATE, END_DATE, POINTS, PENALTY, SCORING_POLICY, SC_MODE ) values (COURSE_ID, NAME,TO_DATE(DEADLINE, 'MM/DD/YYYY'), TOTAL_QUESTIONS,RETRIES,TO_DATE(START_DATE, 'MM/DD/YYYY'), TO_DATE(END_DATE, 'MM/DD/YYYY'), POINTS, PENALTY, SCORING_POLICY, SC_MODE ) returning EXERCISE_ID into ret_id;
 open prc for select ret_id as ret_id from EXERCISE where rownum = 1;
 end;
+/
 -------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE INSERT_AS_AND_RETURN_ID(exid IN NUMBER, username IN VARCHAR, dt IN VARCHAR ,totalpoints IN NUMBER,attemptno IN NUMBER,prc OUT sys_refcursor)
@@ -622,4 +625,26 @@ begin
 insert into ATTEMPT_SUBMISSION (EXERCISE_ID, STUDENT_ID, SUBMISSION_TIME, POINTS, NUMBER_OF_ATTEMPTS ) values (exid, username,TO_DATE(dt, 'MM/DD/YYYY'), totalpoints,attemptno ) returning ATTEMPT_ID into ret_id;
 open prc for select ret_id as ret_id from ATTEMPT_SUBMISSION where rownum = 1;
 end;
+/
+-------------------------------------------
+create or replace TRIGGER Points_Scoring_Policy
+--BEFORE DELETE OR INSERT ON ATTEMPT_SUBMISSION 
+AFTER INSERT ON ATTEMPT_SUBMISSION
+FOR EACH ROW
+DECLARE
+points number;
+policy VARCHAR(20);
+BEGIN
+  Select SCORING_POLICY into policy from EXERCISE where EXERCISE_ID = :NEW.EXERCISE_ID;
+  If(policy = 'MAX') then
+  SELECT max(POINTS) into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID GROUP BY EXERCISE_ID,STUDENT_ID;
+  end if;
+  If(policy = 'AVG') then
+  SELECT avg(POINTS) into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID GROUP BY EXERCISE_ID,STUDENT_ID;
+  end if;
+  If(policy = 'LATEST') then
+  SELECT POINTS into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID ORDER BY ATTEMPT_ID DESC;
+  end if;
+  --UPDATE ATTEMPT_SUBMISSION SET SCORE = points  WHERE EXERCISE_ID =:NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID;
+END;
  
