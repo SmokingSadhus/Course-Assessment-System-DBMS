@@ -538,6 +538,7 @@ public class Student {
         }
         
         public static void takeAdaptiveTest(int ex_id, int retriesAllowed,String course_id) {  
+        	try{
         	List<SubmissionResult> srAttributes= new ArrayList<SubmissionResult>();
         	List<Integer> questionList = new ArrayList<>();
         	List<String> correctness=new ArrayList<>();
@@ -561,21 +562,24 @@ public class Student {
 	    		}
 	    	}
 	    	catch(Exception e) {
-	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		System.out.println("Encountered an Error in retrieving total questions: "+e.getMessage());
 	    		viewAddCourses();
 			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
     		try {
-	    		stmt=con.prepareStatement("SELECT count(number_of_attempts) AS number_of_attempts FROM attempt_submission WHERE exercise_id = ?");
+	    		stmt=con.prepareStatement("SELECT count(*) AS number_of_attempts FROM attempt_submission WHERE exercise_id = ? AND STUDENT_ID=?");
 	    		stmt.setInt(1, ex_id);
+	    		stmt.setString(2,username);
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
-	    			attempt_number = rs.getInt("number_of_attempts"); 
+	    			attempt_number = rs.getInt("number_of_attempts");
+	    			System.out.println("Attempts done: " + attempt_number);
 	    		}
 	    	}
 	    	catch(Exception e) {
-	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		System.out.println("");
+	    		System.out.println("Encountered an Error in getting attempts count: "+e.getMessage());
 	    		viewAddCourses();
 			}	
         	cg.closeStatement(stmt);
@@ -585,7 +589,7 @@ public class Student {
 				return;
 			}
 			try {
-	    		stmt=con.prepareStatement("SELECT topic_id, count(1) AS topic_exists FROM adaptive_exercise_topic WHERE exercise_id = ?");
+	    		stmt=con.prepareStatement("SELECT topic_id, count(topic_id) AS topic_exists FROM adaptive_exercise_topic WHERE exercise_id = ?");
 	    		stmt.setInt(1, ex_id);
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
@@ -595,7 +599,7 @@ public class Student {
 	    		}
 	    	}
 	    	catch(Exception e) {
-	    		System.out.println("Encountered an Error: "+e.getMessage());
+	    		System.out.println("Encountered an Error in topic wise adaptive exercise: "+e.getMessage());
 	    		//takeAdaptiveTest(ex_id,retriesAllowed);
 			}
 			cg.closeStatement(stmt);
@@ -610,6 +614,7 @@ public class Student {
 		    		}
 		    	}
 		    	catch(Exception e) {
+		    		System.out.println("If topic exists");
 		    		System.out.println("Encountered an Error: "+e.getMessage());
 		    		//takeAdaptiveTest(ex_id,retriesAllowed);
 				}
@@ -627,6 +632,7 @@ public class Student {
 		    	}
 		    	catch(Exception e) {
 		    		System.out.println("Encountered an Error: "+e.getMessage());
+		    		System.out.println("Encountered an Error in Question Bank query: "+e.getMessage());
 		    		//takeAdaptiveTest(ex_id,retriesAllowed);
 				}
 				cg.closeStatement(stmt);
@@ -634,26 +640,26 @@ public class Student {
 			}
 			for (int i=0; i<questionList.size(); i++) {
 				try {
-		    		stmt=con.prepareStatement("SELECT question,difficulty_level FROM question WHERE question_id = ?");
+		    		stmt=con.prepareStatement("SELECT question_text,difficulty_level FROM question WHERE question_id = ?");
 		    		stmt.setInt(1, questionList.get(i));
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			if (DQ.containsKey(rs.getInt("difficulty_level"))) {
 		    				List<String> l = DQ.get(rs.getInt("difficulty_level"));
 		    				Collections.shuffle(l);
-		    				l.add(rs.getString("question"));
+		    				l.add(rs.getString("question_text"));
 		    				DQ.put(rs.getInt("difficulty_level"),l);
 		    			}
 		    			else {
 		    				List<String> l = new ArrayList<String>();
-		    				l.add(rs.getString("question"));
+		    				l.add(rs.getString("question_text"));
 		    				DQ.put(rs.getInt("difficulty_level"),l );
 		    			}
 		    		}
 		    	}
 		    	catch(Exception e) {
-		    		System.out.println("Encountered an Error: "+e.getMessage());
-		    		//takeAdaptiveTest(ex_id,retriesAllowed);
+		    		System.out.println("Encountered an Error in querying question and difficulty level: "+e.getMessage());
+		    		viewAddCourses();
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
@@ -669,9 +675,11 @@ public class Student {
 				List<String> answersWrongList=new ArrayList<>();
 				temp= DQ.get(temp_difficulty);
 				String answer_result=null;
+				//Shuffling needed
+				Collections.shuffle(temp);
 				System.out.println(++index + ". " + temp.get(0));
 				try {
-			   		stmt=con.prepareStatement("SELECT answer FROM question_param_answer WHERE question = ? WHERE correct=1");
+			   		stmt=con.prepareStatement("SELECT answer FROM question_param_answers WHERE question = ? AND correct=1");
 			   		stmt.setString(1, temp.get(0));
 			   		
 			   		rs=stmt.executeQuery();
@@ -680,12 +688,14 @@ public class Student {
 			   		}
 			   	}
 			   	catch(Exception e) {
-					e.printStackTrace();
+					System.out.println("SELECT answer FROM question_param_answers WHERE question = ? AND correct=1");
+			   		e.printStackTrace();
+					
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
 				try {
-			    	stmt=con.prepareStatement("SELECT answer FROM question_param_answer WHERE question = ? AND correct=0");
+			    	stmt=con.prepareStatement("SELECT answer FROM question_param_answers WHERE question = ? AND correct=0");
 			   		stmt.setString(1, temp.get(0));
 			   		rs=stmt.executeQuery();
 			   		while (rs.next()) {
@@ -693,6 +703,8 @@ public class Student {
 		    		}
 		    	}
 			    catch(Exception e) {
+			    	System.out.println("SELECT answer FROM question_param_answers WHERE question = ? AND correct=0");
+			   		
 					e.printStackTrace();
 				}
 				cg.closeStatement(stmt);
@@ -704,22 +716,23 @@ public class Student {
 				HashMap<Integer,String> h_options=new HashMap<>();
 				answerOptions.add(answersCorrectList.get(0));
      			answerOptions.add(answersWrongList.get(0));
-				answerOptions.add(answersWrongList.get(0));
-				answerOptions.add(answersWrongList.get(0));
+				answerOptions.add(answersWrongList.get(1));
+				answerOptions.add(answersWrongList.get(2));
 					
 				Collections.shuffle(answerOptions);
 					
 				for (int k=0;k<answerOptions.size();k++) {
-					System.out.println(k+1 + ". " + answerOptions.get(j));
-					h_options.put(j+1, answerOptions.get(j));
+					System.out.println(k+1 + ". " + answerOptions.get(k));
+					h_options.put(k+1, answerOptions.get(k));
 				}
 					
 				int answerOption=sc.nextInt();
 				answerAttempt = h_options.get(answerOption);
 				try {
-		    		stmt=con.prepareStatement("SELECT correct FROM question_param_answer WHERE question = ? AND answer = ?");
+		    		stmt=con.prepareStatement("SELECT correct FROM question_param_answers WHERE question = ? AND answer = ?");
 		    		stmt.setString(1, temp.get(0));
 		    		stmt.setString(2, answerAttempt);
+		    		//System.out.println("Selecting correct/Incorrect query");
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			answer_result=rs.getString("correct");
@@ -732,10 +745,15 @@ public class Student {
 		    	}
 		    	catch(Exception e) {
 					e.printStackTrace();
+					System.out.println("Error in getting correct from QPa");
 				}
+				/*
+				 * Assuming using queu question text
+				 */
 				try {
-		    		stmt=con.prepareStatement("SELECT question_id FROM question_param_answer WHERE question = ?");
+		    		stmt=con.prepareStatement("SELECT question_id FROM question_param_answers WHERE question = ?");
 		    		stmt.setString(1, temp.get(0));
+		    		System.out.println("Selecting Question ID");
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			q_id=rs.getInt("question_id");
@@ -743,13 +761,19 @@ public class Student {
 		    	}
 		    	catch(Exception e) {
 					e.printStackTrace();
+					System.out.println("SELECT question_id FROM question_param_answers WHERE question = ?");
+			   		
 				}
-				SubmissionResult values=new SubmissionResult(q_id,temp.get(0),answerAttempt,Integer.parseInt(answer_result));
+				/*
+				 * this part was to set q_id of asked question
+				 */
+				SubmissionResult values = new SubmissionResult(q_id,temp.get(0),answerAttempt,Integer.parseInt(answer_result));
 				srAttributes.add(values);
 				
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
 			}
+			System.out.println("Creating Submission Result");
 			attempt_number++;
 			try {
 	    		stmt=con.prepareStatement("SELECT points,penalty FROM exercise WHERE exercise_id=?");			    		
@@ -763,6 +787,7 @@ public class Student {
 	    	}
 	    	catch(Exception e) {
 				e.printStackTrace();
+				System.out.println("Encountered an Error in getting penalty and points");
 			}
 
 			for (int i=0;i<correctness.size();i++) {
@@ -798,7 +823,8 @@ public class Student {
 			for (int i=0; i<srAttributes.size();i++) {
 				SubmissionResult attribute=srAttributes.get(i);
 				try {
-		    		stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,TO_DATE(?, 'MM/DD/YYYY'),?,?)");			    		
+					stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,?,?,?)");			    		
+		    		System.out.println(""+attempt_id);
 		    		stmt.setInt(1, attempt_id );
 		    		stmt.setInt(2, attribute.questionId);
 		    		stmt.setString(3, attribute.question);
@@ -815,7 +841,11 @@ public class Student {
 			}	
 						
 			
-        	
+        	}
+        	catch(Exception e){
+        		System.out.println("General exception");
+        		e.printStackTrace();
+        	}
         }
 
 }
