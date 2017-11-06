@@ -654,4 +654,12 @@ begin
 insert into EXERCISE (COURSE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES, START_DATE, END_DATE, POINTS, PENALTY, SCORING_POLICY, SC_MODE ) values (COURSE_ID, NAME,TO_DATE(DEADLINE, 'MM/DD/YYYY'), TOTAL_QUESTIONS,RETRIES,TO_DATE(START_DATE, 'MM/DD/YYYY'), TO_DATE(END_DATE, 'MM/DD/YYYY'), POINTS, PENALTY, SCORING_POLICY, SC_MODE ) returning EXERCISE_ID into ret_id;
 open prc for select ret_id as ret_id from EXERCISE where rownum = 1;
 end;
- 
+
+----------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE INSERT_AS_AND_RETURN_ID(exid IN NUMBER, username IN VARCHAR, dt IN VARCHAR ,totalpoints IN NUMBER,attemptno IN NUMBER,prc OUT sys_refcursor)
+AS
+ret_id number;
+begin
+insert into ATTEMPT_SUBMISSION (EXERCISE_ID, STUDENT_ID, SUBMISSION_TIME, POINTS, NUMBER_OF_ATTEMPTS ) values (exid, username,TO_DATE(dt, 'MM/DD/YYYY'), totalpoints,attemptno ) returning ATTEMPT_ID into ret_id;
+open prc for select ret_id as ret_id from ATTEMPT_SUBMISSION where rownum = 1;
+end;
