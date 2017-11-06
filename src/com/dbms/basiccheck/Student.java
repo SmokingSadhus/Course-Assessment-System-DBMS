@@ -152,6 +152,10 @@ public class Student {
 			cg.closeResult(rs);
 			System.out.println("Enter course id to view the course details:");
 			int temp=sc.nextInt();
+			if(temp==0){
+				homePage();
+				return;
+			}
 			String tempCourse = courses.get(temp - 1);
 			if (!isNumber(tempCourse)) {
 				System.out.println("choose one of the following options");
@@ -226,35 +230,76 @@ public class Student {
 						
 					
 			    }
-			    else if (temp1==2) {
+			    else if (temp1==2) 
+			    {
 			    	java.sql.Date deadlineSqlDate = null;
+			    	stmt = null;
+			    	rs = null;
 			    	try {
-			    		stmt=con.prepareStatement("SELECT e.start_date, e.end_date, e.sc_mode,(e.total_questions * e.points) AS total_points,e.scoring_policy,e.retries - (Select count(Attempt_Id) from Attempt_Submission where Exercise_Id = e.Exercise_id AND student_id = ?) AS available_attempts,(Select count(Attempt_Id) from Attempt_Submission where Exercise_Id = e.Exercise_id AND student_id = ?) as attempts_by_student FROM exercise e, attempt_submission a_s WHERE a_s.exercise_id=e.exercise_id AND a_s.student_id = ? and e.DEADLINE < ?");
-			    		stmt.setString(1, username);
-			    		stmt.setString(2, username);
-			    		stmt.setString(3, username);
+			    		stmt=con.prepareStatement("SELECT EXERCISE_ID,COURSE_ID,NAME,DEADLINE,TOTAL_QUESTIONS,RETRIES,START_DATE,"
+			    				+ "SCORING_POLICY,POINTS,PENALTY,SC_MODE from EXERCISE where COURSE_ID = ? and DEADLINE < ?");
+			    		stmt.setString(1, tempCourse);
+			    		//stmt.setString(2, username);
+			    		//stmt.setString(3, username);
 			    		Date startDate = new Date();
 			    		deadlineSqlDate = new java.sql.Date(startDate.getTime());
-			    		stmt.setDate(4, deadlineSqlDate);
+			    		stmt.setDate(2, deadlineSqlDate);
 			    		rs=stmt.executeQuery();
 			    		System.out.println("Past Homeworks for the course:");
+			    		List<String> pastExercises = new ArrayList<String>();
 			    		while (rs.next()) {
-			    			System.out.println(rs.getString("start_date")+"  "+rs.getString("end_date")+"  "+rs.getString("sc_mode")+"  "+rs.getString("total_points")+"  "+rs.getString("scoring_policy")+"  "+rs.getString("avaiable_attempts")+"  "+rs.getString("attempts_by_student"));
-			    		}
+			    			System.out.println("--------------------------- Exercise_Id : "+rs.getString("EXERCISE_ID") +
+			    					"------------------------------");
+			    			pastExercises.add(rs.getString("EXERCISE_ID"));
+			    			System.out.println("COURSE_ID: "+ rs.getString("COURSE_ID"));
+			    			System.out.println("NAME: "+ rs.getString("NAME"));
+			    			System.out.println("COURSE_ID: "+ rs.getString("COURSE_ID"));
+			    			System.out.println("DEADLINE: "+ rs.getString("DEADLINE"));
+			    			System.out.println("TOTAL_QUESTIONS: "+ rs.getString("TOTAL_QUESTIONS"));
+			    			System.out.println("RETRIES: "+ rs.getString("RETRIES"));
+			    			System.out.println("START_DATE: "+ rs.getString("START_DATE"));
+			    			System.out.println("SCORING_POLICY: "+ rs.getString("SCORING_POLICY"));
+			    			System.out.println("POINTS PER QUESTION: "+ rs.getString("POINTS"));
+			    			System.out.println("PENALTY FOR INCORRECT ANSWER: "+ rs.getString("PENALTY"));
+			    			System.out.println("SCORING POLICY: "+ rs.getString("SC_MODE"));
+			    			
+//			    			System.out.println("EXERCISE_ID  |  COURSE_ID |  NAME  |"
+//			    					+ "  DEADLINE | TOTAL_QUESTIONS  |  RETRIES  | START_DATE | "+rs.getString("EXERCISE_ID")+"------------------------------" );
+//			    			System.out.println(rs.getString("EXERCISE_ID") +"  "+rs.getString("COURSE_ID")+"  "+rs.getString("NAME")
+//			    			+"  "+rs.getString("DEADLINE")+"  "+rs.getString("TOTAL_QUESTIONS")+"  "+rs.getString("RETRIES")
+//			    			+"  "+rs.getString("START_DATE")
+//			    			+"  "+rs.getString("SCORING_POLICY")+"  "+rs.getString("POINTS")+"  "+rs.getString("PENALTY")
+//			    			+"  "+rs.getString("SC_MODE"));
+//			    			
+			    			}
 			    		cg.closeStatement(stmt);
-						cg.closeResult(rs);
+			    		cg.closeResult(rs);
 			    	}
 			    	catch(Exception e) { e.printStackTrace();
 			    		System.out.println("Encountered an Error: "+e.getMessage());
-						viewAddCourses();
-					}	
-			    	
-					System.out.println("Enter 0 to go back");
-					int isZero = 1;
-					while(isZero != 0){
-						isZero = sc.nextInt();
-						}
-					viewAddCourses();
+			    		viewAddCourses();
+			    	}	
+			    	try{
+			    		System.out.println("Enter an Exercise Id to view details or enter 0 to go back to homepage:");
+			    		int choice = sc.nextInt();
+			    		if(choice==0){
+			    			homePage();
+			    		}
+			    		else{
+			    			viewExerciseDetails(choice);
+			    		}
+			    		
+			    	}
+			    	catch(Exception e){
+			    		System.out.println("Error in individual Exercises");
+			    	}
+			    	System.out.println("Enter 0 to go back");
+			    	int isZero = 1;
+			    	while(isZero != 0){
+			    		isZero = sc.nextInt();
+			    		}
+			    	viewAddCourses();
+			    					
 			    }
 			    else{
 			    	if (temp1==0)
@@ -286,7 +331,123 @@ public class Student {
         	
         }
         
-        private static boolean isNumber(String x){
+        private static void viewExerciseDetails(int exercise_id) {
+        	PreparedStatement stmt = null;
+			ResultSet rs = null;
+			int finalScore = -1;
+			finalScore = finalScore(exercise_id, username);
+			if(finalScore!=-1){
+				System.out.println("");
+				System.out.println("Final Score for the Exercise: "+ finalScore);
+				System.out.println("");
+			}
+			else{
+				System.out.println("");
+				System.out.println("Final Score for the Exercise is unavailable");
+				System.out.println("");
+			}
+			
+			List<String> attempts = new ArrayList<String>();
+			try{
+				stmt=con.prepareStatement("SELECT ATTEMPT_ID,EXERCISE_ID,STUDENT_ID,"
+						+ "SUBMISSION_TIME,POINTS,NUMBER_OF_ATTEMPTS from ATTEMPT_SUBMISSION where STUDENT_ID = ? and EXERCISE_ID=? ORDER BY NUMBER_OF_ATTEMPTS");
+				stmt.setString(1, username);
+				stmt.setInt(2, exercise_id);
+			   	rs = stmt.executeQuery();
+			   	int pointAverage = 0;
+			   	while(rs.next()){
+			   		attempts.add(rs.getString("ATTEMPT_ID"));
+			   		System.out.println("--------------- Attempt #: "+rs.getString("NUMBER_OF_ATTEMPTS")+"------------------------------" );
+			   		System.out.println("ATTEMPT_ID: "+ rs.getString("ATTEMPT_ID"));
+	    			System.out.println("EXERCISE_ID: "+ rs.getString("EXERCISE_ID"));
+	    			System.out.println("STUDENT_ID: "+ rs.getString("STUDENT_ID"));
+	    			System.out.println("SUBMISSION_TIME: "+ rs.getString("SUBMISSION_TIME"));
+	    			System.out.println("POINTS: "+ rs.getString("POINTS"));
+	    			System.out.println("NUMBER_OF_ATTEMPTS: "+ rs.getString("NUMBER_OF_ATTEMPTS"));
+			   		
+//			   		System.out.println(rs.getString("ATTEMPT_ID") +"  "+rs.getString("EXERCISE_ID")+"  "+rs.getString("STUDENT_ID")+"  "+rs.getString("SUBMISSION_TIME")
+//	    			+"  "+rs.getString("POINTS")+"  "+rs.getString("NUMBER_OF_ATTEMPTS"));
+	    			//pointAverage = 0;//Abhinav's proc here
+			   	}
+			   	System.out.println("Points earned for the Homework:"+pointAverage);  
+			   		cg.closeStatement(stmt);
+			   		cg.closeResult(rs);
+			   		
+			   	}
+			catch(Exception e){
+				System.out.println("Exception in fetching Attempts");
+				homePage();
+			}
+			
+		}
+
+
+		private static int finalScore(int exercise_id, String username2) {
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			String scoringPolicy = null;
+			int pointFinal = -1;
+			try{
+				stmt=con.prepareStatement("SELECT SCORING_POLICY from EXERCISE where EXERCISE_ID = ?");
+				stmt.setInt(1, exercise_id);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		scoringPolicy = rs.getString("SCORING_POLICY");
+			   	}
+			   	if(scoringPolicy==null || scoringPolicy.equals("")){
+			   		return -1;
+			   	}
+			   	stmt = null;
+		   		rs = null;
+			   	if(scoringPolicy.equalsIgnoreCase("max")){
+			   		
+			   		stmt=con.prepareStatement("SELECT MAX(POINTS) as MAX_POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+					stmt.setInt(1, exercise_id);
+					stmt.setString(2, username2);
+				   	rs = stmt.executeQuery();
+				   	while(rs.next()){
+				   		pointFinal = rs.getInt("MAX_POINTS");
+				   	}
+			   		return pointFinal;
+			   	}
+			   	else if(scoringPolicy.equalsIgnoreCase("latest")){
+			   		stmt = null;
+			   		rs = null;
+			   		stmt=con.prepareStatement("SELECT POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ? AND ROWNUM=1 ORDER BY SUBMISSION_TIME DESC");
+					stmt.setInt(1, exercise_id);
+					stmt.setString(2, username2);
+				   	rs = stmt.executeQuery();
+				   	while(rs.next()){
+				   		pointFinal = rs.getInt("POINTS");
+				   	}
+			   		return pointFinal;
+			   	}
+			   	else if(scoringPolicy.equalsIgnoreCase("AVERAGE")|| scoringPolicy.equalsIgnoreCase("avg")){
+			   		stmt=con.prepareStatement("SELECT AVG(POINTS) AS AVG_POINT from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+					stmt.setInt(1, exercise_id);
+					stmt.setString(2, username2);
+				   	rs = stmt.executeQuery();
+				   	while(rs.next()){
+				   		pointFinal = rs.getInt("AVG_POINT");
+				   	}
+			   		return pointFinal;
+			   	}
+			   	else{
+			   		return -1;
+			   	}
+			   	
+			}
+			catch(Exception e){
+				System.out.println("Error Fetching final Score:");
+				e.printStackTrace();
+				return -1;
+			}
+			
+			//return -1;
+		}
+
+
+		private static boolean isNumber(String x){
     		try
     	    {
     	        Integer.parseInt(x);
