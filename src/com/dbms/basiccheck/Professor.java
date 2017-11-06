@@ -468,34 +468,34 @@ public class Professor {
 	   		rs = null;
 		   	if(scoringPolicy.equalsIgnoreCase("max")){
 		   		
-		   		stmt=con.prepareStatement("SELECT MAX(POINTS) from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+		   		stmt=con.prepareStatement("SELECT MAX(POINTS) as MAX_POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
 				stmt.setInt(1, exercise_id);
 				stmt.setString(2, username2);
 			   	rs = stmt.executeQuery();
 			   	while(rs.next()){
-			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   		pointFinal = rs.getInt("MAX_POINTS");
 			   	}
 		   		return pointFinal;
 		   	}
 		   	else if(scoringPolicy.equalsIgnoreCase("latest")){
 		   		stmt = null;
 		   		rs = null;
-		   		stmt=con.prepareStatement("SELECT POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ? SORT BY SUBMISSION_TIME DESC LIMIT 1");
+		   		stmt=con.prepareStatement("SELECT POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ? AND ROWNUM=1 ORDER BY SUBMISSION_TIME DESC");
 				stmt.setInt(1, exercise_id);
 				stmt.setString(2, username2);
 			   	rs = stmt.executeQuery();
 			   	while(rs.next()){
-			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   		pointFinal = rs.getInt("POINTS");
 			   	}
 		   		return pointFinal;
 		   	}
-		   	else if(scoringPolicy.equalsIgnoreCase("avg")){
-		   		stmt=con.prepareStatement("SELECT AVG(POINTS) from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+		   	else if(scoringPolicy.equalsIgnoreCase("AVERAGE")|| scoringPolicy.equalsIgnoreCase("avg")){
+		   		stmt=con.prepareStatement("SELECT AVG(POINTS) AS AVG_POINT from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
 				stmt.setInt(1, exercise_id);
 				stmt.setString(2, username2);
 			   	rs = stmt.executeQuery();
 			   	while(rs.next()){
-			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   		pointFinal = rs.getInt("AVG_POINT");
 			   	}
 		   		return pointFinal;
 		   	}
@@ -505,7 +505,8 @@ public class Professor {
 		   	
 		}
 		catch(Exception e){
-			System.out.println("Error Fetching final Score");
+			System.out.println("Error Fetching final Score:");
+			e.printStackTrace();
 			return -1;
 		}
 		
