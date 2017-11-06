@@ -627,14 +627,16 @@ open prc for select ret_id as ret_id from ATTEMPT_SUBMISSION where rownum = 1;
 end;
 /
 -------------------------------------------
+/*
 create or replace TRIGGER Points_Scoring_Policy
---BEFORE DELETE OR INSERT ON ATTEMPT_SUBMISSION 
-AFTER INSERT ON ATTEMPT_SUBMISSION
+BEFORE DELETE OR INSERT ON ATTEMPT_SUBMISSION 
+--AFTER INSERT ON ATTEMPT_SUBMISSION
 FOR EACH ROW
 DECLARE
 points number;
 policy VARCHAR(20);
 BEGIN
+
   Select SCORING_POLICY into policy from EXERCISE where EXERCISE_ID = :NEW.EXERCISE_ID;
   If(policy = 'MAX') then
   SELECT max(POINTS) into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID GROUP BY EXERCISE_ID,STUDENT_ID;
@@ -647,4 +649,29 @@ BEGIN
   end if;
   --UPDATE ATTEMPT_SUBMISSION SET SCORE = points  WHERE EXERCISE_ID =:NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID;
 END;
- 
+ */
+/* 
+CREATE OR REPLACE PROCEDURE COMPUTE_SCORE(exid IN NUMBER, username IN VARCHAR, prc OUT sys_refcursor)
+AS
+score number;
+countcheck number;
+policy VARCHAR(20);
+begin
+Select SCORING_POLICY into policy from EXERCISE where EXERCISE_ID = exid;
+SELECT count(*)  into countcheck from  ATTEMPT_SUBMISSION where EXERCISE_ID = exid AND STUDENT_ID= username;
+ if( countcheck = 0) then
+ select -1 into score from ATTEMPT_SUBMISSION where rownum = 1;
+ elsIf (policy = 'MAX') then
+  SELECT max(POINTS) into score FROM ATTEMPT_SUBMISSION where EXERCISE_ID = exid AND STUDENT_ID= username GROUP BY EXERCISE_ID,STUDENT_ID;
+  elsIf(policy = 'AVG') then
+  SELECT avg(POINTS) into score FROM ATTEMPT_SUBMISSION where EXERCISE_ID = exid AND STUDENT_ID= username GROUP BY EXERCISE_ID,STUDENT_ID;
+ --else If(policy = 'LATEST') then
+ else
+  SELECT POINTS into score FROM ATTEMPT_SUBMISSION where EXERCISE_ID = exid AND STUDENT_ID= username ORDER BY ATTEMPT_ID DESC;
+  else
+  select -1 into score from ATTEMPT_SUBMISSION where rownum = 1;
+ end if;
+open prc for select score as score from ATTEMPT_SUBMISSION where rownum = 1;
+end;
+/
+*/

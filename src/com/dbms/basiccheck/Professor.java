@@ -449,6 +449,68 @@ public class Professor {
 		
 	}
 
+	private static int finalScore(int exercise_id, String username2) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		String scoringPolicy = null;
+		int pointFinal = -1;
+		try{
+			stmt=con.prepareStatement("SELECT SCORING_POLICY from EXERCISE where EXERCISE_ID = ?");
+			stmt.setInt(1, exercise_id);
+		   	rs = stmt.executeQuery();
+		   	while(rs.next()){
+		   		scoringPolicy = rs.getString("SCORING_POLICY");
+		   	}
+		   	if(scoringPolicy==null || scoringPolicy.equals("")){
+		   		return -1;
+		   	}
+		   	stmt = null;
+	   		rs = null;
+		   	if(scoringPolicy.equalsIgnoreCase("max")){
+		   		
+		   		stmt=con.prepareStatement("SELECT MAX(POINTS) from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+				stmt.setInt(1, exercise_id);
+				stmt.setString(2, username2);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   	}
+		   		return pointFinal;
+		   	}
+		   	else if(scoringPolicy.equalsIgnoreCase("latest")){
+		   		stmt = null;
+		   		rs = null;
+		   		stmt=con.prepareStatement("SELECT POINTS from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ? SORT BY SUBMISSION_TIME DESC LIMIT 1");
+				stmt.setInt(1, exercise_id);
+				stmt.setString(2, username2);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   	}
+		   		return pointFinal;
+		   	}
+		   	else if(scoringPolicy.equalsIgnoreCase("avg")){
+		   		stmt=con.prepareStatement("SELECT AVG(POINTS) from ATTEMPT_SUBMISSION where EXERCISE_ID = ? AND STUDENT_ID = ?");
+				stmt.setInt(1, exercise_id);
+				stmt.setString(2, username2);
+			   	rs = stmt.executeQuery();
+			   	while(rs.next()){
+			   		pointFinal = rs.getInt("SCORING_POLICY");
+			   	}
+		   		return pointFinal;
+		   	}
+		   	else{
+		   		return -1;
+		   	}
+		   	
+		}
+		catch(Exception e){
+			System.out.println("Error Fetching final Score");
+			return -1;
+		}
+		
+		//return -1;
+	}
 
 	private static void viewReport(String courseId) {
 		// TODO Auto-generated method stub
@@ -484,17 +546,10 @@ public class Professor {
 			 for(int j=0; j<listOfExercise.size();j++){
 				 InnerStudent is = listOfStudents.get(i);
 				 Exercise e = listOfExercise.get(j);
-				 //select SCORE from ATTEMPT_SUBMISSION where EXERCISE_ID = ? and STUDENT_ID = ? and rownum =1 order by NUMBER_OF_ATTEMPTS
-				 stmt=con.prepareStatement("select SCORE from ATTEMPT_SUBMISSION where EXERCISE_ID = ? and STUDENT_ID = ? and rownum =1 order by NUMBER_OF_ATTEMPTS");
-				 stmt.setInt(1, e.exid);
-				 stmt.setString(2, is.id);
-				 rs = stmt.executeQuery();
-				 Integer fScore = null;
-				 while(rs.next()){
-					 fScore = rs.getInt("SCORE");
-				 }
-				 String sc;
-				 if(fScore == null){
+					Integer fScore = null;
+					fScore = finalScore(e.exid, is.id);
+				    String sc;
+				 if(fScore == -1){
 					 sc = "NA";
 				 }
 				 else{
