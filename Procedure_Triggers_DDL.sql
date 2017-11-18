@@ -179,7 +179,7 @@ CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 
 CREATE TABLE QUESTION 
 (
   QUESTION_ID NUMBER NOT NULL 
-, QUESTION_TEXT VARCHAR(200) NOT NULL 
+, QUESTION_TEXT VARCHAR(500) NOT NULL 
 , DIFFICULTY_LEVEL NUMBER NOT NULL 
 , HINT VARCHAR(200) 
 , EXPLANATION VARCHAR(200) 
@@ -333,7 +333,7 @@ CREATE TABLE ATTEMPT_SUBMISSION
   ATTEMPT_ID NUMBER NOT NULL  
 , EXERCISE_ID NUMBER NOT NULL 
 , STUDENT_ID VARCHAR(20) NOT NULL 
-, SUBMISSION_TIME TIMESTAMP NOT NULL 
+, SUBMISSION_TIME TIMESTAMP 
 , POINTS NUMBER 
 , NUMBER_OF_ATTEMPTS NUMBER
 , SCORE NUMBER
@@ -511,7 +511,7 @@ Raise_Application_Error(-20000, 'Undergrads cannot be TA');
 END IF;
 END;
 / 
-ALTER TRIGGER check_is_grad ENABLE;
+ALTER TRIGGER check_is_grad Enable;
 
 CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
    before insert on  EXERCISE
@@ -614,7 +614,7 @@ BEGIN
 END;
 /
 
-ALTER TRIGGER Average_Difficulty_Level ENABLE;
+ALTER TRIGGER Average_Difficulty_Level disable;
 
 
 
@@ -631,7 +631,7 @@ begin
   open prc for select col_name from MENU_OPTIONS where role = 'P' and menu_name = menuname order by DISPLAY_ORDER;
   end if;
 end ;
-
+/
 
 
 
@@ -643,7 +643,7 @@ begin
 insert into QUESTION (QUESTION_TEXT,QUESTION_TYPE, TOPIC_ID, DIFFICULTY_LEVEL, HINT, EXPLANATION) values (q_text,q_type,topic_id,dl,hint,exp) returning QUESTION_ID into ret_id;
 open prc for select ret_id as ret_id from QUESTION where rownum = 1;
 end;
-
+/
 
 
 ----------------------------------------------------------------------------------------
@@ -654,7 +654,7 @@ begin
 insert into EXERCISE (COURSE_ID, NAME, DEADLINE, TOTAL_QUESTIONS, RETRIES, START_DATE, END_DATE, POINTS, PENALTY, SCORING_POLICY, SC_MODE ) values (COURSE_ID, NAME,TO_DATE(DEADLINE, 'MM/DD/YYYY'), TOTAL_QUESTIONS,RETRIES,TO_DATE(START_DATE, 'MM/DD/YYYY'), TO_DATE(END_DATE, 'MM/DD/YYYY'), POINTS, PENALTY, SCORING_POLICY, SC_MODE ) returning EXERCISE_ID into ret_id;
 open prc for select ret_id as ret_id from EXERCISE where rownum = 1;
 end;
-
+/
 ----------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE INSERT_AS_AND_RETURN_ID(exid IN NUMBER, username IN VARCHAR, dt IN VARCHAR ,totalpoints IN NUMBER,attemptno IN NUMBER,prc OUT sys_refcursor)
 AS
@@ -663,3 +663,4 @@ begin
 insert into ATTEMPT_SUBMISSION (EXERCISE_ID, STUDENT_ID, SUBMISSION_TIME, POINTS, NUMBER_OF_ATTEMPTS ) values (exid, username,TO_DATE(dt, 'MM/DD/YYYY'), totalpoints,attemptno ) returning ATTEMPT_ID into ret_id;
 open prc for select ret_id as ret_id from ATTEMPT_SUBMISSION where rownum = 1;
 end;
+/

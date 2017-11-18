@@ -22,7 +22,6 @@ insert into MENU_OPTIONS values ('P','View Course','View TA',6,1);
 insert into MENU_OPTIONS values ('P','View Course','Add TA',7,0);
 insert into MENU_OPTIONS values ('P','View Course','Enroll/Drop Student',8,0);
 insert into MENU_OPTIONS values ('P','View Course','View Report',9,0);
-
 --viewSpecificExercise
 insert into MENU_OPTIONS values ('P','viewSpecificExercise','DELETE QUESTION',2,0);
 insert into MENU_OPTIONS values ('P','viewSpecificExercise','ADD QUESTION',1,0);
@@ -45,82 +44,83 @@ insert into ROLE values ('chealey','p','chealey');
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into STUDENT values ('tregan','Tom​ ​Regan',0);
-insert into STUDENT values ('jmick','Jenelle​ ​Mick',1);
-insert into STUDENT values ('mfisher','Michal​ ​Fisher',0);
-insert into STUDENT values ('jander','Joseph​ ​Anderson',0);
-insert into STUDENT values ('jharla','Jitendra​ ​Harlalka',1);
-insert into STUDENT values ('aneela','Aishwarya​ ​Neelakantan',1);
-insert into STUDENT values ('mjones','Mary​ ​Jones',1);
-insert into STUDENT values ('jmoyer','James​ ​Moyer',1);
+insert into STUDENT values ('tregan','Tom Regan',0);
+insert into STUDENT values ('jmick','Jenelle Mick',1);
+insert into STUDENT values ('mfisher','Michal Fisher',0);
+insert into STUDENT values ('jander','Joseph Anderson',0);
+insert into STUDENT values ('jharla','Jitendra Harlalka',1);
+insert into STUDENT values ('aneela','Aishwarya Neelakantan',1);
+insert into STUDENT values ('mjones','Mary Jones',1);
+insert into STUDENT values ('jmoyer','James Moyer',1);
 
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into PROFESSOR values ('kogan','​ ​Kemafor​ ​Ogan');
-insert into PROFESSOR values ('rchirkova','​ ​Rada​ ​Chirkova');
-insert into PROFESSOR values ('chealey','​ ​Christipher​ ​Healey');
+insert into PROFESSOR values ('kogan','Kemafor Ogan');
+insert into PROFESSOR values ('rchirkova','Rada Chirkova');
+insert into PROFESSOR values ('chealey','Christipher Healey');
 
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into COURSE values ('CSC440','​Database Systems ',TO_DATE('08/27/2017', 'MM/DD/YYYY'),TO_DATE('12/12/2017', 'MM/DD/YYYY'), 'rchirkova');
-insert into COURSE values ('CSC540','​Database Systems ',TO_DATE('09/27/2017', 'MM/DD/YYYY'),TO_DATE('12/10/2017', 'MM/DD/YYYY'), 'kogan');
-insert into COURSE values ('CSC541','​Advanced Data Structures ',TO_DATE('09/25/2017', 'MM/DD/YYYY'),TO_DATE('12/06/2017', 'MM/DD/YYYY'), 'chealey');
+insert into COURSE values ('CSC440','Database Systems',TO_DATE('08/27/2017', 'MM/DD/YYYY'),TO_DATE('12/12/2017', 'MM/DD/YYYY'), 'rchirkova');
+insert into COURSE values ('CSC540','Database Systems',TO_DATE('09/27/2017', 'MM/DD/YYYY'),TO_DATE('12/10/2017', 'MM/DD/YYYY'), 'kogan');
+insert into COURSE values ('CSC541','Advanced Data Structures',TO_DATE('09/25/2017', 'MM/DD/YYYY'),TO_DATE('12/06/2017', 'MM/DD/YYYY'), 'chealey');
 
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into COURSE_STUDENT values ('CSC440','​tregan');
-insert into COURSE_STUDENT values ('CSC440','mfisher​');
-insert into COURSE_STUDENT values ('CSC440','​jander');
-insert into COURSE_STUDENT values ('CSC540','​aneela');
-insert into COURSE_STUDENT values ('CSC540','​mjones');
-insert into COURSE_STUDENT values ('CSC540','​jmick');
+insert into COURSE_STUDENT values ('CSC440','tregan');
+insert into COURSE_STUDENT values ('CSC440','mfisher');
+insert into COURSE_STUDENT values ('CSC440','jander');
+insert into COURSE_STUDENT values ('CSC540','aneela');
+insert into COURSE_STUDENT values ('CSC540','mjones');
+insert into COURSE_STUDENT values ('CSC540','jmick');
 insert into COURSE_STUDENT values ('CSC541','aneela');
-insert into COURSE_STUDENT values ('CSC541','​mjones');
-insert into COURSE_STUDENT values ('CSC541','​jmick');
+insert into COURSE_STUDENT values ('CSC541','mjones');
+insert into COURSE_STUDENT values ('CSC541','jmick');
 
-
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into COURSE_TOPIC values ('CSC440','​04');
-insert into COURSE_TOPIC values ('CSC440','​06');
-insert into COURSE_TOPIC values ('CSC540','​01');
-insert into COURSE_TOPIC values ('CSC540','​03');
-insert into COURSE_TOPIC values ('CSC540','​04');
-insert into COURSE_TOPIC values ('CSC540','​06');
-insert into COURSE_TOPIC values ('CSC541','​04');
-insert into COURSE_TOPIC values ('CSC541','​06');
-
-
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into TA values ('CSC440','​aneela');
-insert into TA values ('CSC440','​​jmick');
-insert into TA values ('CSC540','​jharla');
-insert into TA values ('CSC541','jmoye');
-
-
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into TOPIC values ('01','ER​ ​Model');
+---------------------------------------------------------------------------------------
+insert into TOPIC values ('01','ER Model');
 insert into TOPIC values ('02','SQL');
-insert into TOPIC values ('03','Storing​ ​Data:Disks​ ​and​ ​Files');
-insert into TOPIC values ('04','Primary​ ​File​ ​Organization');
-insert into TOPIC values ('05','Hashing​ ​Techniques');
-insert into TOPIC values ('06','Binary​ ​Tree​ ​Structures');
-insert into TOPIC values ('07','AVL​ ​Trees');
-insert into TOPIC values ('08','Sequential​ ​File​ ​Organization');
+insert into TOPIC values ('03','Storing Data:Disks and Files');
+insert into TOPIC values ('04','Primary File Organization');
+insert into TOPIC values ('05','Hashing Techniques');
+insert into TOPIC values ('06','Binary Tree Structures');
+insert into TOPIC values ('07','AVL Trees');
+insert into TOPIC values ('08','Sequential File Organization');
 insert into TOPIC values ('09','BinarySearch');
-insert into TOPIC values ('10','Interpolation​ ​Search');
+insert into TOPIC values ('10','Interpolation Search');
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+insert into COURSE_TOPIC values ('CSC440','04');
+insert into COURSE_TOPIC values ('CSC440','06');
+insert into COURSE_TOPIC values ('CSC540','01');
+insert into COURSE_TOPIC values ('CSC540','03');
+insert into COURSE_TOPIC values ('CSC540','04');
+insert into COURSE_TOPIC values ('CSC540','06');
+insert into COURSE_TOPIC values ('CSC541','04');
+insert into COURSE_TOPIC values ('CSC541','06');
 
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into QUESTION values (1,'Question​ ​1?​',2,'Hint​ ​text​ ​Q1','detailed​ ​Explanation​ ​Q1','f','01');
-insert into QUESTION values (2,'Question​ ​2​?',3,'Hint​ ​text​ ​Q2','detailed​ ​Explanation​ ​Q2','f','01');
-insert into QUESTION values (3,'Question​ ​3​?',2,'Hint​ ​text​ ​Q3','detailed​ ​Explanation​ ​Q3','p','01');
+insert into TA values ('CSC440','aneela');
+insert into TA values ('CSC440','jmick');
+insert into TA values ('CSC540','jharla');
+insert into TA values ('CSC541','jmoyer');
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+insert into QUESTION values (1,'Question 1',2,'Hint text Q1','detailed Explanation Q1','f','01');
+insert into QUESTION values (2,'Question 2',3,'Hint text Q2','detailed Explanation Q2','f','01');
+insert into QUESTION values (3,'Consider a disk with a sector size: <sector size>,tracks per surface: <tracks per surface>, sectors per track: <sectors per track>,double sided platters: <double sided platters>, average seek time: <average seek time>. What is the capacity of a track in bytes?',2,'Hint text Q3','detailed Explanation Q3','p','01');
 
 
 
@@ -132,36 +132,36 @@ insert into QUESTION_BANK values ('CSC540',3);
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Correct Ans​ ​1',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Correct Ans​ ​2',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Incorrect Ans 3',0, 'short explanation 3');
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Incorrect Ans 4',0, 'short explanation 4');
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Incorrect Ans 5',0, 'short explanation 5');
-insert into QUESTION_PARAM_ANSWERS values ('1','Question​ ​1?​', 'Incorrect Ans 6',0, 'short explanation 6');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Correct Ans 1',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Correct Ans 2',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Correct Ans 3',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Incorrect Ans 4',0, 'short explanation 4');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Incorrect Ans 5',0, 'short explanation 5');
-insert into QUESTION_PARAM_ANSWERS values ('2','Question​ ​2?​', 'Incorrect Ans 6',0, 'short explanation 6');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Correct Ans 1',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Correct Ans 2',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Incorrect Ans 3',0, 'short explanation 3');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Incorrect Ans 4',0, 'short explanation 4');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Incorrect Ans 5',0, 'short explanation 5');
+insert into QUESTION_PARAM_ANSWERS values ('1','Question 1', 'Incorrect Ans 6',0, 'short explanation 6');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Correct Ans 1',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Correct Ans 2',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Correct Ans 3',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Incorrect Ans 4',0, 'short explanation 4');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Incorrect Ans 5',0, 'short explanation 5');
+insert into QUESTION_PARAM_ANSWERS values ('2','Question 2', 'Incorrect Ans 6',0, 'short explanation 6');
 
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes? ​', 'Correct Ans 1v1',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Correct Ans 2v1',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Correct Ans 3v1',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Incorrect Ans 4v1',0, 'short explanation 4');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Incorrect Ans 5v1',0, 'short explanation 5');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Incorrect Ans 6v1',0, 'short explanation 6');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Incorrect Ans 7v1',0, 'short explanation 7');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​512 bytes,​ 2000,​ 50,​ 5,​ 10msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Incorrect Ans 8v1',0, 'short explanation 8');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Correct Ans 1v1',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Correct Ans 2v1',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Correct Ans 3v1',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Incorrect Ans 4v1',0, 'short explanation 4');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Incorrect Ans 5v1',0, 'short explanation 5');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Incorrect Ans 6v1',0, 'short explanation 6');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Incorrect Ans 7v1',0, 'short explanation 7');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 512 bytes,tracks per surface: 2000, sectors per track: 50,double sided platters: 5, average seek time: 10msec. What is the capacity of a track in bytes?', 'Incorrect Ans 8v1',0, 'short explanation 8');
 
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes? ​', 'Correct Ans 1v2',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Correct Ans 2v2',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Correct Ans 3v2',1, '');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Incorrect Ans 4v1',0, 'short explanation 4');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Incorrect Ans 5v1',0, 'short explanation 5');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Incorrect Ans 6v1',0, 'short explanation 6');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?​', 'Incorrect Ans 7v1',0, 'short explanation 7');
-insert into QUESTION_PARAM_ANSWERS values ('3','Consider​ ​a​ ​disk​ ​with​ ​a​ ​256 bytes,​ 1000,​ 100,​ 10,​ 20msec. What​ ​is​ ​the​ ​capacity​ ​of​ ​a​ ​track​ ​in​ ​bytes?', 'Incorrect Ans 8v1',0, 'short explanation 8');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Correct Ans 1v2',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Correct Ans 2v2',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Correct Ans 3v2',1, '');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Incorrect Ans 4v1',0, 'short explanation 4');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Incorrect Ans 5v1',0, 'short explanation 5');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Incorrect Ans 6v1',0, 'short explanation 6');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Incorrect Ans 7v1',0, 'short explanation 7');
+insert into QUESTION_PARAM_ANSWERS values ('3','Consider a disk with a sector size: 256 bytes,tracks per surface: 1000, sectors per track: 100,double sided platters: 10, average seek time: 20msec. What is the capacity of a track in bytes?', 'Incorrect Ans 8v1',0, 'short explanation 8');
 
 
 
@@ -183,7 +183,7 @@ insert into EXERCISE_QUESTION values (3,3);
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-insert into ADAPTIVE_EXERCISE_TOPIC(2,1);
+insert into ADAPTIVE_EXERCISE_TOPIC values (2,'01');
 
 
 
