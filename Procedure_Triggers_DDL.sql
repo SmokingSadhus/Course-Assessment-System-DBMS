@@ -143,7 +143,8 @@ CREATE TABLE EXERCISE
 , COURSE_ID VARCHAR(20) NOT NULL 
 , NAME VARCHAR(100) 
 , DEADLINE DATE 
-, TOTAL_QUESTIONS NUMBER 
+, TOTAL_QUESTIONS NUMBER
+, CURRENT_QUESTION_COUNT NUMBER DEFAULT 0
 , RETRIES NUMBER 
 , START_DATE DATE 
 , END_DATE DATE 
@@ -151,7 +152,7 @@ CREATE TABLE EXERCISE
 , PENALTY NUMBER 
 , SCORING_POLICY VARCHAR(20) 
 , SC_MODE VARCHAR(20)
-, DIFFICULTY_LEVEL NUMBER
+, DIFFICULTY_LEVEL NUMBER DEFAULT 0
 , CONSTRAINT EXERCISE_PK PRIMARY KEY 
   (
     EXERCISE_ID 
@@ -496,22 +497,6 @@ ON DELETE CASCADE
 
 
 -----------------------------------------------------------------------------
-CREATE OR REPLACE TRIGGER check_is_grad
-  BEFORE INSERT OR UPDATE ON TA
-  FOR EACH ROW
-DECLARE
-  isGrad number;
-BEGIN
-select is_grad into isGrad from student s where s.STUDENT_ID = :NEW.STUDENT_ID and rownum = 1;
-if ( isGrad <> 1)
---if ( :NEW.STUDENT_ID >= 1)
-then 
-Raise_Application_Error(-20000, 'Undergrads cannot be TA');
---insert into tp values(1);
-END IF;
-END;
-/ 
-ALTER TRIGGER check_is_grad Enable;
 
 CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
    before insert on  EXERCISE
@@ -557,6 +542,23 @@ begin
 end;
 /
 ALTER TRIGGER ATTEMPT_SUBMISSION_PK_Trigger ENABLE;
+---------------------------------------------------------------------
+CREATE OR REPLACE TRIGGER check_is_grad
+  BEFORE INSERT OR UPDATE ON TA
+  FOR EACH ROW
+DECLARE
+  isGrad number;
+BEGIN
+select is_grad into isGrad from student s where s.STUDENT_ID = :NEW.STUDENT_ID and rownum = 1;
+if ( isGrad <> 1)
+--if ( :NEW.STUDENT_ID >= 1)
+then 
+Raise_Application_Error(-20000, 'Undergrads cannot be TA');
+--insert into tp values(1);
+END IF;
+END;
+/ 
+ALTER TRIGGER check_is_grad Enable;
 
 
 
@@ -605,16 +607,19 @@ CREATE OR REPLACE TRIGGER Average_Difficulty_Level
 AFTER DELETE OR INSERT ON EXERCISE_QUESTION 
 FOR EACH ROW
 DECLARE
-Average number;
+init_average number;
+init_count number;
+new_difficulty number;
 BEGIN
-  Select AVG(DIFFICULTY_LEVEL) into Average from QUESTION where QUESTION_ID in(Select QUESTION_ID from EXERCISE_QUESTION where EXERCISE_ID = :NEW.EXERCISE_ID);
-  If(Average>0) then
-  UPDATE EXERCISE SET DIFFICULTY_LEVEL = Average  WHERE EXERCISE_ID =:NEW.EXERCISE_ID;
-  end if; 
+  Select CURRENT_QUESTION_COUNT into init_count from EXERCISE where EXERCISE_ID = :NEW.EXERCISE_ID;
+  Select  DIFFICULTY_LEVEL into init_average from EXERCISE where EXERCISE_ID = :NEW.EXERCISE_ID;
+  Select DIFFICULTY_LEVEL into new_difficulty from QUESTION where QUESTION_ID = :NEW.QUESTION_ID;
+  UPDATE EXERCISE SET DIFFICULTY_LEVEL = (((init_average * init_count) + new_difficulty)/(init_count + 1))  WHERE EXERCISE_ID =:NEW.EXERCISE_ID;
+  UPDATE EXERCISE SET CURRENT_QUESTION_COUNT = (CURRENT_QUESTION_COUNT + 1) where  EXERCISE_ID =:NEW.EXERCISE_ID;
 END;
 /
 
-ALTER TRIGGER Average_Difficulty_Level disable;
+ALTER TRIGGER Average_Difficulty_Level enable;
 
 
 
