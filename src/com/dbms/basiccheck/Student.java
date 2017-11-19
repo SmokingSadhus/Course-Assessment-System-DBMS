@@ -334,18 +334,13 @@ public class Student {
         private static void viewExerciseDetails(int exercise_id) {
         	PreparedStatement stmt = null;
 			ResultSet rs = null;
-			int finalScore = -1;
-			finalScore = finalScore(exercise_id, username);
-			if(finalScore!=-1){
+			double finalScore = finalScore_quey(exercise_id, username);
+
 				System.out.println("");
 				System.out.println("Final Score for the Exercise: "+ finalScore);
 				System.out.println("");
-			}
-			else{
-				System.out.println("");
-				System.out.println("Final Score for the Exercise is unavailable");
-				System.out.println("");
-			}
+
+
 			
 			List<String> attempts = new ArrayList<String>();
 			try{
@@ -379,6 +374,26 @@ public class Student {
 				homePage();
 			}
 			
+		}
+
+
+		private static double finalScore_quey(int exercise_id, String username2) {
+			Double finalScore = (double) 0;
+			try{
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			stmt=con.prepareStatement("select asu.sc as score from (select score as sc  from ATTEMPT_SUBMISSION where EXERCISE_ID = ? and STUDENT_ID = ? order by NUMBER_OF_ATTEMPTS desc) asu where rownum =1");
+			stmt.setInt(1, exercise_id);
+			stmt.setString(2, username2);
+		   	rs = stmt.executeQuery();
+		   	while(rs.next()){
+		   		finalScore = rs.getDouble("score");
+		   	}
+			}
+			catch(Exception e){
+				System.out.println("hi");
+			}
+			return finalScore != null ?finalScore: (double) 0;
 		}
 
 

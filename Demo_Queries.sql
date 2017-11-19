@@ -105,12 +105,13 @@ group by stu_attempts.e_id;
 -----------------------------------------------------------------
 
 ---Reporting query--------------
-select es.e_id as Ex, es.s_id as St, 
+select es.e_id as Ex, es.s_id as St, es.sname as Nm,
 case when asu.score is null then 0 else asu.score end as score from
-(select e.EXERCISE_ID as e_id, cs.STUDENT_ID as s_id
+(select e.EXERCISE_ID as e_id, cs.STUDENT_ID as s_id, s.name as sname
 from 
-EXERCISE e, COURSE_STUDENT cs 
-where e.COURSE_ID = cs.COURSE_ID) es
+EXERCISE e, COURSE_STUDENT cs, STUDENT s
+where e.COURSE_ID = cs.COURSE_ID
+and cs.STUDENT_ID = s.STUDENT_ID) es
 left join ATTEMPT_SUBMISSION asu on (asu.EXERCISE_ID = es.e_id and asu.STUDENT_ID = es.s_id)
 where asu.NUMBER_OF_ATTEMPTS is null or asu.NUMBER_OF_ATTEMPTS = (select max(asu2.NUMBER_OF_ATTEMPTS) from ATTEMPT_SUBMISSION asu2 where asu2.EXERCISE_ID =es.e_id and asu2.STUDENT_ID = es.s_id );
 

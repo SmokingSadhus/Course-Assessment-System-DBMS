@@ -516,49 +516,23 @@ public class Professor {
 	private static void viewReport(String courseId) {
 		// TODO Auto-generated method stub
 		try{
-	    PreparedStatement stmt = null;
-	    ResultSet rs = null;
-	    stmt=con.prepareStatement("select s.student_id, s.name from COURSE_STUDENT cs  inner join STUDENT s on cs.student_id = s.student_id where course_id = ?");
-		stmt.setString(1, courseId);
-		rs = stmt.executeQuery();
-		
-		
-		List<Exercise> listOfExercise = new ArrayList<Exercise>();
-		List<InnerStudent> listOfStudents = new ArrayList<InnerStudent>();
-		 while(rs.next()){
-				//System.out.println(rs.getString("topic_id") + ": " + rs.getString("name"));
-			 InnerStudent s = new InnerStudent(rs.getString("student_id"), rs.getString("name"));
-			 listOfStudents.add(s);
+			CallableStatement callableStatement = null;
+			ResultSet rs = null;
+			String getReport = "{call RETURN_REPORT(?,?)}";
+			callableStatement = con.prepareCall(getReport);
+			callableStatement.setString(1, courseId);
+			callableStatement.registerOutParameter(2, OracleTypes.CURSOR);
+			callableStatement.executeUpdate();
+			rs = (ResultSet) callableStatement.getObject(2);
+			 
+			while(rs.next()){
+				System.out.println("Exercise ID: " +rs.getInt("Ex") + " Exercise Name: " +rs.getString("eNm") + " Student ID: " + rs.getString("St") + " Student Name: "+ rs.getString("Nm")+ " Score: " + rs.getDouble("score") );
 			}
-		 cg.closeResult(rs);
-		 cg.closeStatement(stmt);
-		 
-		 stmt=con.prepareStatement("select exercise_id, name from exercise where course_id = ?");
-		 stmt.setString(1, courseId);
-		 rs = stmt.executeQuery();
-		 while(rs.next()){
-			 Exercise e = new Exercise(rs.getInt("exercise_id"), rs.getString("name"));
-			 listOfExercise.add(e);
-		 }
-		 cg.closeResult(rs);
-		 cg.closeStatement(stmt);
-		 
-		 for(int i=0; i <listOfStudents.size();i++ ){
-			 for(int j=0; j<listOfExercise.size();j++){
-				 InnerStudent is = listOfStudents.get(i);
-				 Exercise e = listOfExercise.get(j);
-					Integer fScore = null;
-					fScore = finalScore(e.exid, is.id);
-				    String sc;
-				 if(fScore == -1){
-					 sc = "NA";
-				 }
-				 else{
-					 sc = new String(""+fScore);
-				 }
-				 System.out.println("Student Name: " + is.name + "Exercise ID: "+e.exid +" Exercise Name: " + e.name + " Score: " + sc);
-			 }
-		 }
+			cg.closeResult(rs);
+			cg.closeStatement(callableStatement);
+			
+			
+		
 		 int zer = 1;
 		 while(zer != 0){
 		 System.out.println("Enter 0 to go to previous page.");

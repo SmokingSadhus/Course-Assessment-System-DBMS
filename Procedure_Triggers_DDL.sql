@@ -640,7 +640,7 @@ BEGIN
   else
   'n'
   end
-  into does_exist from ATTEMPT_SUBMISSION where ROWNUM=1;
+  into does_exist from COURSE where ROWNUM=1;
   if does_exist = 'n'
   then :NEW.SCORE := :NEW.POINTS;
   else
@@ -719,5 +719,25 @@ ret_id number;
 begin
 insert into ATTEMPT_SUBMISSION (EXERCISE_ID, STUDENT_ID, SUBMISSION_TIME, POINTS, NUMBER_OF_ATTEMPTS ) values (exid, username,TO_DATE(dt, 'MM/DD/YYYY'), totalpoints,attemptno ) returning ATTEMPT_ID into ret_id;
 open prc for select ret_id as ret_id from ATTEMPT_SUBMISSION where rownum = 1;
+end;
+/
+----------------------------------------
+
+CREATE OR REPLACE PROCEDURE RETURN_REPORT(COURSEID IN VARCHAR,prc OUT sys_refcursor)
+AS
+begin
+open prc for 
+select es.e_id as Ex, es.s_id as St, es.sname as Nm, es.ename as eNm,
+case when asu.score is null then 0 else asu.score end as score from
+(select e.EXERCISE_ID as e_id,e.NAME as ename ,cs.STUDENT_ID as s_id, s.name as sname
+from 
+EXERCISE e, COURSE_STUDENT cs, STUDENT s
+where e.COURSE_ID = cs.COURSE_ID
+and cs.STUDENT_ID = s.STUDENT_ID
+and e.COURSE_ID = COURSEID
+) es
+left join ATTEMPT_SUBMISSION asu on (asu.EXERCISE_ID = es.e_id and asu.STUDENT_ID = es.s_id)
+where asu.NUMBER_OF_ATTEMPTS is null or asu.NUMBER_OF_ATTEMPTS = (select max(asu2.NUMBER_OF_ATTEMPTS) from ATTEMPT_SUBMISSION asu2 where asu2.EXERCISE_ID =es.e_id and asu2.STUDENT_ID = es.s_id )
+order by Ex, St;
 end;
 /
