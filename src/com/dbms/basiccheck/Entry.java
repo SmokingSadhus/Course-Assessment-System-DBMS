@@ -90,14 +90,14 @@ public class Entry {
 			startPage();
 		}
 		else{
-			if(role.equals("P")){
+			if(role.equals("p")){
 				Professor.cg = cg;
 				Professor.sc = sc;
 				Professor.con = con;
 				Professor.username = username;
 				Professor.homePage(); 
 			}
-			else if(role.equals("S")){
+			else if(role.equals("s")){
 				Student.cg = cg;
 				Student.sc = sc;
 				Student.con = con;
