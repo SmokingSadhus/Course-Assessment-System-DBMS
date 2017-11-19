@@ -621,6 +621,58 @@ END;
 
 ALTER TRIGGER Average_Difficulty_Level enable;
 
+--------------------------------------------------------------------------
+
+create or replace TRIGGER Points_Scoring_Policy
+BEFORE INSERT ON ATTEMPT_SUBMISSION 
+--AFTER INSERT ON ATTEMPT_SUBMISSION
+FOR EACH ROW
+DECLARE
+does_exist varchar(3);
+points number;
+policy VARCHAR(20);
+no_of_attempts number;
+BEGIN
+  --SELECT count(*)  into countcheck from  ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID;
+  select 
+  case when exists(select 1 from ATTEMPT_SUBMISSION where EXERCISE_ID =:NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID)
+  then 'y'
+  else
+  'n'
+  end
+  into does_exist from ATTEMPT_SUBMISSION where ROWNUM=1;
+  if does_exist = 'n'
+  then :NEW.SCORE := :NEW.POINTS;
+  else
+  Select SCORING_POLICY into policy from EXERCISE where EXERCISE_ID = :NEW.EXERCISE_ID;
+  If(policy = 'MAX') then
+  SELECT 
+   max(POINTS)
+    into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID GROUP BY EXERCISE_ID,STUDENT_ID;
+  if points < :NEW.points
+  then :NEW.score := :NEW.points;
+  end if;
+  end if;
+  If(policy = 'AverageScore') then
+  SELECT 
+   avg(POINTS)
+    into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID GROUP BY EXERCISE_ID,STUDENT_ID;
+  select 
+  MAX(NUMBER_OF_ATTEMPTS)
+  into no_of_attempts from ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID;
+  :NEW.score := ((points * no_of_attempts) + :NEW.POINTS)/(no_of_attempts + 1);
+  end if;
+  If(policy = 'LatestAttempt') then
+  --SELECT POINTS into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = :NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID ORDER BY ATTEMPT_ID DESC;
+  :NEW.score := :NEW.POINTS;
+  end if;
+  end if;
+  --UPDATE ATTEMPT_SUBMISSION SET SCORE = points  WHERE EXERCISE_ID =:NEW.EXERCISE_ID AND STUDENT_ID= :NEW.STUDENT_ID;
+END;
+ /
+
+ALTER TRIGGER Points_Scoring_Policy enable;
+
 
 
 ----------------------------------------------------------------------------------------
