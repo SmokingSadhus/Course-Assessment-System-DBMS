@@ -1093,6 +1093,26 @@ public class Professor {
 				System.out.println("Error parsing End Date");
 				endDateSqlFormat = null;
 			}
+			System.out.println("Choose the topic id's to add as comma separated list:");
+			ResultSet rs = null;
+			stmt=con.prepareStatement("select topic_id, name from topic");
+			rs = stmt.executeQuery();
+			List<String> topiclist = new ArrayList<String>();
+			while(rs.next()) {
+				String tid = rs.getString("topic_id");
+				String name = rs.getString("name");
+				System.out.println(tid+ ": "+ name);
+				topiclist.add(tid);
+				
+			}
+			String ip = sc.nextLine();
+			String [] tops = ip.split(",");
+			cg.closeResult(rs);
+			cg.closeStatement(stmt);
+			
+			
+			//cg.closeResult(rs);
+			cg.closeStatement(stmt);
 			stmt=con.prepareStatement("INSERT INTO COURSE values (?,?,?,?,?)");
 			 stmt.setString(1, courseId);
 			 stmt.setString(2, courseName);
@@ -1100,6 +1120,13 @@ public class Professor {
 			 stmt.setDate(4, endDateSqlFormat);
 			 stmt.setString(5, username);
 			 stmt.executeUpdate();
+			 
+			 for(String t:tops) {
+					stmt=con.prepareStatement("INSERT INTO COURSE_TOPIC values (?,?)");
+					stmt.setString(1,courseId );
+					stmt.setString(2,t );
+					stmt.executeUpdate();
+				}
 			}
 		}
 		catch(Exception e){
