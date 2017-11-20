@@ -192,13 +192,13 @@ public class Professor {
 		ResultSet rs = null;
 		CallableStatement callableStatement = null;
 		try {
-		System.out.println("Enter Question Type");
+		System.out.println("Enter Question Type (P/F)");
 		String type = sc.nextLine();
-		System.out.println("Enter Question Text");
+		System.out.println("Enter Question Text (For P type, enter param placeholder as <?>)");
 		String text =  sc.nextLine();
 		System.out.println("Enter topic");
 		String topic = sc.nextLine();
-		System.out.println("Enter difficulty level");
+		System.out.println("Enter difficulty level (1-6)");
 		int dl = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Enter Hint");
@@ -569,7 +569,7 @@ public class Professor {
 			modifyExistingExercises(courseId);
 		}
 		else if(opt == 2){
-		System.out.println("Enter Mode of the exercise: ");
+		System.out.println("Enter Mode of the exercise: (STANDARD/ ADAPTIVE)");
 		String mode = sc.nextLine();
 		System.out.println("Enter name for this exercise: ");
 		String name = sc.nextLine();
@@ -787,7 +787,7 @@ public class Professor {
 	    else{
 	    	newPenalty = Integer.parseInt(tempPenalty);
 	    }
-	    System.out.println("Enter Scoring Policy");
+	    System.out.println("Enter Scoring Policy (LatestAttempt / AverageScore / MAX)");
 	    newSP = sc.nextLine();
 	    if(newSP.equals("")){
 	    	newSP = ei.sp;

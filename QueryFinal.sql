@@ -36,32 +36,6 @@ drop table MENU_OPTIONS;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 CREATE TABLE MENU_OPTIONS 
 (
   ROLE VARCHAR(1) NOT NULL 
