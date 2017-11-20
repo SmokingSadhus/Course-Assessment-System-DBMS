@@ -70,13 +70,18 @@ public class Entry {
 			 stmt=con.prepareStatement("SELECT ROLE FROM ROLE where user_id = ? and PASSWORD = ?");
 			 stmt.setString(1, username);
 			 stmt.setString(2, password);
-
+             int ct = 0; 
 		 rs = stmt.executeQuery();
 		 while(rs.next()){
-			 
+			  ct++;
 			  role = rs.getString("ROLE");
 			 
 		 }
+		 if(ct > 1) {
+			 System.out.println("Would you like to be TA or Student? Enter t or s");
+			 role = sc.next();
+		 }
+		 
 		}
 		catch(Exception e){
 			e.printStackTrace();

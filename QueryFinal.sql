@@ -5,6 +5,8 @@ drop PROCEDURE INSERT_AS_AND_RETURN_ID;
 drop sequence ATTEMPT_SUBMISSION_SEQ;
 drop sequence Question_SEQ;
 drop sequence EXERCISE_SEQ;
+drop trigger enterTARole;
+drop trigger delenterTARole;
  drop trigger ATTEMPT_SUBMISSION_PK_Trigger;
  drop trigger EXERCISE_PK_Trigger;
  drop trigger Question_PK_Trigger;
@@ -61,7 +63,8 @@ CREATE TABLE ROLE
 , PASSWORD VARCHAR(20) NOT NULL 
 , CONSTRAINT ROLE_PK PRIMARY KEY 
   (
-    USER_ID 
+    USER_ID ,
+    ROLE
   
   )
    
@@ -612,6 +615,30 @@ END IF;
 END;
 / 
 ALTER TRIGGER check_is_grad Enable;
+-------------------------------------------------------------------------------------------
+CREATE OR REPLACE TRIGGER enterTARole
+  AFTER INSERT ON TA
+  FOR EACH ROW
+DECLARE
+  pwd VARCHAR(50);
+BEGIN
+select password into pwd from role where user_id = :NEW.STUDENT_ID and role = 's';
+insert into role values (:NEW.STUDENT_ID,'t',pwd);
+END;
+/ 
+ALTER TRIGGER enterTARole Enable;
+
+-----------------------------------------------------------------------------
+CREATE OR REPLACE TRIGGER delenterTARole
+  AFTER DELETE ON TA
+  FOR EACH ROW
+DECLARE
+  pwd VARCHAR(50);
+BEGIN
+delete from role where user_id = :OLD.STUDENT_ID and role = 't' and rownum = 1;
+END;
+/ 
+ALTER TRIGGER delenterTARole Enable;
 
 
 
