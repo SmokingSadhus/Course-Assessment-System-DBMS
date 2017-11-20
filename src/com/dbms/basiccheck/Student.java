@@ -374,7 +374,61 @@ public class Student {
 				System.out.println("Exception in fetching Attempts");
 				homePage();
 			}
+			try{
+	    		System.out.println("Enter an Attempt Id to view details or enter 0 to go back to homepage:");
+	    		int choice = sc.nextInt();
+	    		if(choice==0){
+	    			homePage();
+	    		}
+	    		else{
+	    			viewAttemptDetails(choice,exercise_id);
+	    		}
+	    		
+	    	}
+	    	catch(Exception e){
+	    		System.out.println("Error in individual Exercises");
+	    	}
 			
+		}
+
+
+		private static void viewAttemptDetails(int choice,int exercise_id) {
+			PreparedStatement stmt = null;
+			ResultSet rs = null;
+			//System.out.println("**************in view attempt");
+			//List<String> attempts = new ArrayList<String>();
+			try{
+				stmt=con.prepareStatement("SELECT * from SUBMISSION_RESULT where ATTEMPT_ID=?");
+				stmt.setInt(1, choice);
+				//stmt.setInt(2, exercise_id);
+				
+			   	rs = stmt.executeQuery();
+			   	//System.out.println("**************in view attempt query after");
+				
+			   	//int pointAverage = 0;
+			   	while(rs.next()){
+			   		//attempts.add(rs.getString("ATTEMPT_ID"));
+			   		//System.out.println("--------------- Attempt #: "+ choice +"------------------------------" );
+			   		System.out.println("Attempt details are: ");
+					
+			   		System.out.println("ATTEMPT_ID: "+ rs.getString("ATTEMPT_ID"));
+	    			System.out.println("QUESTION_ID: "+ rs.getString("QUESTION_ID"));
+	    			System.out.println("QUESTION: "+ rs.getString("QUESTION"));
+	    			System.out.println("ANSWER: "+ rs.getString("ANSWER"));
+	    			System.out.println("CORRECT: "+ rs.getString("CORRECT"));
+			   		
+			   	}
+				cg.closeStatement(stmt);
+		   		cg.closeResult(rs);
+			}
+			catch(Exception e){
+				System.out.println("Exception in fetching Attempts");
+				viewExerciseDetails(exercise_id);
+			}
+			System.out.println("Enter 0 to go back");
+			if(sc.nextInt()!=100) {
+			viewExerciseDetails(exercise_id);
+			}
 		}
 
 
