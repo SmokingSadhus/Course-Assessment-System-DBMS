@@ -817,7 +817,7 @@ public class Student {
 			}
 			for (int i=0; i<questionList.size(); i++) {
 				try {
-		    		stmt=con.prepareStatement("SELECT question_text,difficulty_level FROM question WHERE question_id = ?");
+		    		stmt=con.prepareStatement("SELECT qpa.question as question_text,q.difficulty_level FROM question q, question_param_answers qpa WHERE q.question_id = ? and q.question_id=qpa.question_id");
 		    		stmt.setInt(1, questionList.get(i));
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
