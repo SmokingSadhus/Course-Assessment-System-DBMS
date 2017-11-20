@@ -395,7 +395,10 @@ public class Student {
 		private static void viewAttemptDetails(int choice,int exercise_id) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
+<<<<<<< HEAD
 			//System.out.println("**************in view attempt");
+=======
+>>>>>>> 693326f8bbcfa8d90d67778f6e3cae222964e317
 			//List<String> attempts = new ArrayList<String>();
 			try{
 				stmt=con.prepareStatement("SELECT * from SUBMISSION_RESULT where ATTEMPT_ID=?");
@@ -403,6 +406,7 @@ public class Student {
 				//stmt.setInt(2, exercise_id);
 				
 			   	rs = stmt.executeQuery();
+<<<<<<< HEAD
 			   	//System.out.println("**************in view attempt query after");
 				
 			   	//int pointAverage = 0;
@@ -411,6 +415,12 @@ public class Student {
 			   		//System.out.println("--------------- Attempt #: "+ choice +"------------------------------" );
 			   		System.out.println("Attempt details are: ");
 					
+=======
+			   	//int pointAverage = 0;
+			   	while(rs.next()){
+			   		//attempts.add(rs.getString("ATTEMPT_ID"));
+			   		System.out.println("--------------- Attempt #: "+ choice +"------------------------------" );
+>>>>>>> 693326f8bbcfa8d90d67778f6e3cae222964e317
 			   		System.out.println("ATTEMPT_ID: "+ rs.getString("ATTEMPT_ID"));
 	    			System.out.println("QUESTION_ID: "+ rs.getString("QUESTION_ID"));
 	    			System.out.println("QUESTION: "+ rs.getString("QUESTION"));
@@ -425,10 +435,14 @@ public class Student {
 				System.out.println("Exception in fetching Attempts");
 				viewExerciseDetails(exercise_id);
 			}
+<<<<<<< HEAD
 			System.out.println("Enter 0 to go back");
 			if(sc.nextInt()!=100) {
 			viewExerciseDetails(exercise_id);
 			}
+=======
+			viewExerciseDetails(exercise_id);
+>>>>>>> 693326f8bbcfa8d90d67778f6e3cae222964e317
 		}
 
 
