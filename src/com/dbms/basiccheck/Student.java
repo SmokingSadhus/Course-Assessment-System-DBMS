@@ -669,7 +669,7 @@ public class Student {
 		    		System.out.println("Encountered an Error: "+e.getMessage());
 		    		takeStandardTest(ex_id,retriesAllowed);
 				}
-				SubmissionResult values=new SubmissionResult(Integer.parseInt(questionsList.get(i)),questionText,answerAttempt,Integer.parseInt(answer_result));
+				SubmissionResult values=new SubmissionResult(Integer.parseInt(questionsList.get(i)),questionText,answerAttempt,Integer.parseInt(answer_result),answerOptions);
 				srAttributes.add(values);
 				
 				cg.closeStatement(stmt);
@@ -768,11 +768,55 @@ public class Student {
 				cg.closeResult(rs);
 			}
 			
+			viewAfterAttemptSummary(srAttributes,total_points,correct_points,wrong_points);
 			
 	     	
         }
         
-        public static void takeAdaptiveTest(int ex_id, int retriesAllowed,String course_id) {  
+        private static void viewAfterAttemptSummary(List<SubmissionResult> srAttributes, int total_points, int correct_points, int wrong_points) {
+			// TODO Auto-generated method stub
+        System.out.println("-----Report for this submission--------");
+        	for(SubmissionResult sr: srAttributes) {
+        		System.out.println(sr.question);
+       List<String> options = sr.answerOptions;
+       int ct = 1;
+       for(String x: options) {
+    	   System.out.println(ct +": " + x);
+    	   ct++;
+       }
+       System.out.println("Your answer: " + sr.answer);
+       if(sr.correct == 1) {
+    	   System.out.println("You answered correctly"); 
+    	   System.out.println("You got +"+correct_points);
+       }else {
+    	   System.out.println("You answered incorrectly");
+    	   PreparedStatement stmt;
+    	   ResultSet rs = null;
+    	   try {
+	    		stmt=con.prepareStatement("SELECT hint from question where question_id = ?");
+	    		stmt.setInt(1, sr.questionId);
+	    		rs=stmt.executeQuery();
+	    		while (rs.next()) {
+	    			System.out.println("Hint: " + rs.getString("hint"));
+	    		}
+	    	}
+	    	catch(Exception e) { 
+	    		e.printStackTrace();
+			}
+    	   
+    	   System.out.println("You got -"+wrong_points);
+    	   
+       }
+       System.out.println();
+       System.out.println();
+        	}
+		System.out.println("Your score for this submission: " + total_points);	
+		System.out.println();
+		System.out.println();
+		}
+
+
+		public static void takeAdaptiveTest(int ex_id, int retriesAllowed,String course_id) {  
         	try{
         	List<SubmissionResult> srAttributes= new ArrayList<SubmissionResult>();
         	List<Integer> questionList = new ArrayList<>();
@@ -1002,7 +1046,7 @@ public class Student {
 				/*
 				 * this part was to set q_id of asked question
 				 */
-				SubmissionResult values = new SubmissionResult(q_id,temp.get(0),answerAttempt,Integer.parseInt(answer_result));
+				SubmissionResult values = new SubmissionResult(q_id,temp.get(0),answerAttempt,Integer.parseInt(answer_result),answerOptions);
 				srAttributes.add(values);
 				
 				cg.closeStatement(stmt);
@@ -1075,7 +1119,7 @@ public class Student {
 				cg.closeResult(rs);
 			}	
 						
-			
+			viewAfterAttemptSummary(srAttributes,total_points,correct_points,wrong_points);
         	}
         	catch(Exception e){
         		System.out.println("General exception");
@@ -1090,10 +1134,12 @@ class SubmissionResult{
 	String question;
 	String answer;
 	int correct;
-	public SubmissionResult(int questionId, String question, String answer, int correct) {
+	List<String> answerOptions;
+	public SubmissionResult(int questionId, String question, String answer, int correct, List<String> answerOptions) {
 		this.questionId = questionId;
 		this.question = question;
 		this.answer = answer;
 		this.correct = correct;
+		this.answerOptions = answerOptions;
 	}
 }
