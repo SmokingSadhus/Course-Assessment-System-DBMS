@@ -165,11 +165,47 @@ public class Student {
 			String tempCourse = courses.get(temp - 1);
 			if (!isNumber(tempCourse)) {
 				System.out.println("choose one of the following options");
+				
 			    System.out.println("1. Current Open Homeworks");
 			    System.out.println("2. Past Homeworks");
+			    System.out.println("3. View details of the course");
 			    System.out.println("Press 0 to go back");
 			    int temp1 = sc.nextInt();
 			    java.sql.Date stDateSqlFormat = null;
+			    if (temp1==3){
+			    	try{
+			    		stmt=con.prepareStatement("SELECT PROFESSOR_ID, COURSE_ID, COURSE_NAME, START_DATE, END_DATE from course where course_id = ?");
+			    		stmt.setString(1, tempCourse);
+			    		//stmt.setString(2, tempCourse);
+			    		rs=stmt.executeQuery();
+			    		while (rs.next()) {
+			    			System.out.println("PROFESSOR_ID " + rs.getString("PROFESSOR_ID"));
+			    			System.out.println("COURSE_ID " + rs.getString("COURSE_ID"));
+			    			System.out.println("COURSE_NAME " + rs.getString("COURSE_NAME"));
+			    			System.out.println("START_DATE " + rs.getString("START_DATE"));
+			    			System.out.println("END_DATE " + rs.getString("END_DATE"));
+			    		}
+			    		stmt=con.prepareStatement("SELECT Student_id from TA where course_id = ?");
+			    		stmt.setString(1, tempCourse);
+			    		rs=stmt.executeQuery();
+			    		while (rs.next()) {
+			    			System.out.println("TA: " + rs.getString("Student_id"));
+			    		}
+			    	}
+			    	catch(Exception e){
+			    		e.printStackTrace();
+			    		homePage();
+			    	}
+			    	cg.closeStatement(stmt);
+					cg.closeResult(rs);
+					System.out.println("Enter 0 to go back");
+			    	int isZero = 1;
+			    	while(isZero != 0){
+			    		isZero = sc.nextInt();
+			    		}
+			    	viewAddCourses();
+			    	
+			    }
 			    if (temp1==1) {
 			    	System.out.println("All open homeworks are:");
 			    	try {
