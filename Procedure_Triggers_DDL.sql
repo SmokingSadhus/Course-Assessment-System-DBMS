@@ -835,7 +835,7 @@ begin
                        start with ' || las_new_seq ||
                        ' increment by 1';
 end;
-
+/
 
 declare
     lq_new_seq INTEGER;
@@ -849,7 +849,7 @@ begin
                        ' increment by 1';
 end;
 
-
+/
 
 declare
     l_new_seq INTEGER;
