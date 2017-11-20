@@ -90,6 +90,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 	}
 
@@ -302,6 +303,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 	}
 
@@ -335,7 +337,9 @@ public class Professor {
 		 
 		 }
 		catch(Exception e){
-		   e.printStackTrace();	
+		   e.printStackTrace();
+	       homePage();
+		   return;
 		}
 		System.out.println("Couses you added: ");
 		for(int i=1; i <= courses.size();i++){
@@ -444,6 +448,7 @@ public class Professor {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			viewSpecificCourse(courseId);
 		}
 		
 		
@@ -543,6 +548,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 		
 	}
@@ -660,6 +666,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 		//if(mode.)
 	}
@@ -821,6 +828,7 @@ public class Professor {
 		}
 	     catch(Exception e){
 	    	e.printStackTrace(); 
+			homePage();
 	     }
 		
 	}
@@ -896,6 +904,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 		
 		
@@ -941,6 +950,7 @@ public class Professor {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
 		}
 		
 		
@@ -1038,6 +1048,8 @@ public class Professor {
 	     }
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
+			return;
 		}
 		
 		
@@ -1093,6 +1105,7 @@ public class Professor {
 		catch(Exception e){
 			System.out.println("Encountered Error: "+e.getMessage());
 			viewAddCourses();
+			return;
 		}
 		viewAddCourses();
 		
@@ -1236,7 +1249,9 @@ private static void addTA(String courseId) {
 		    
 		     }
 		catch(Exception e){
-		   e.printStackTrace();	
+		    e.printStackTrace();
+			homePage();
+			return;
 		}
 		cg.closeStatement(stmt);
 		cg.closeResult(rs);
@@ -1261,6 +1276,8 @@ private static void addTA(String courseId) {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			homePage();
+			return;
 		}
 		cg.closeStatement(stmt);
 		cg.closeResult(rs);
@@ -1328,6 +1345,8 @@ private static void addTA(String courseId) {
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				homePage();
+				return;
 			}
 			
 		}
@@ -1363,6 +1382,8 @@ private static void addTA(String courseId) {
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				homePage();
+				return;
 			}
 			
 		}
@@ -1379,6 +1400,8 @@ private static void addTA(String courseId) {
 			}
 			catch(Exception e){
 				System.out.println(e.getMessage());
+				homePage();
+				return;
 			}
 					
 		}
@@ -1413,6 +1436,8 @@ private static void addTA(String courseId) {
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				homePage();
+				return;
 			}
 			
 		}
