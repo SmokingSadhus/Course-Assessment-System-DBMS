@@ -402,7 +402,7 @@ public class Student {
 
 			//List<String> attempts = new ArrayList<String>();
 			try{
-				stmt=con.prepareStatement("SELECT * from SUBMISSION_RESULT where ATTEMPT_ID=?");
+				stmt=con.prepareStatement("Select * from Submission_Result sr, Question q where sr.question_id= q.question_id and sr.attempt_id =?");
 				stmt.setInt(1, choice);
 				//stmt.setInt(2, exercise_id);
 				
@@ -412,17 +412,20 @@ public class Student {
 			   	//int pointAverage = 0;
 
 			   	//int pointAverage = 0;
+			   	System.out.println("--------------- Attempt #: "+ choice +"------------------------------" );
 			   	while(rs.next()){
 			   		//attempts.add(rs.getString("ATTEMPT_ID"));
-			   		System.out.println("--------------- Attempt #: "+ choice +"------------------------------" );
-
 			   		System.out.println("ATTEMPT_ID: "+ rs.getString("ATTEMPT_ID"));
 	    			System.out.println("QUESTION_ID: "+ rs.getString("QUESTION_ID"));
 	    			System.out.println("QUESTION: "+ rs.getString("QUESTION"));
 	    			System.out.println("ANSWER: "+ rs.getString("ANSWER"));
 	    			System.out.println("CORRECT: "+ rs.getString("CORRECT"));
+	    			System.out.println("HINT: "+ rs.getString("HINT"));
+	    			System.out.println("EXPLANATION: "+ rs.getString("EXPLANATION"));
+	    			
 			   		
 			   	}
+			   	System.out.println("---------------------------------------------------------------------");
 				cg.closeStatement(stmt);
 		   		cg.closeResult(rs);
 		   		System.out.println("Enter 0 to go back");
