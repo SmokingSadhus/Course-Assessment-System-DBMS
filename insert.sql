@@ -2,8 +2,10 @@ select * from student
 select * from topic
 select * from question
 
-select * from course
+delete from exercise_question
 
+select * from course
+delete from attempt_submission where attempt_id in (1,2,3,4,5,6,7,8)
 ALTER TABLE QUESTION 
 ADD (QUESTION_TYPE VARCHAR(20) DEFAULT Fixed );
 
@@ -178,3 +180,76 @@ insert into course_topic values ('CSC 541','T1');
 insert into course_topic values ('CSC 541','T3');
 insert into course_topic values ('CSC 542','T4');
 insert into course_topic values ('CSC 542','T2');
+
+-----------------------
+select SCORE from ATTEMPT_SUBMISSION where EXERCISE_ID = 1  and STUDENT_ID = 'sjha' and rownum =1 order by NUMBER_OF_ATTEMPTS
+
+
+select * from exercise
+
+select * from student
+
+insert into ATTEMPT_SUBMISSION (EXERCISE_ID, STUDENT_ID, SUBMISSION_TIME,POINTS, NUMBER_OF_ATTEMPTS) values (1,'sjha4',TO_DATE('11/05/2017','MM/DD/YYYY'),34,1)
+
+SELECT max(POINTS) into points FROM ATTEMPT_SUBMISSION where EXERCISE_ID = 1 AND STUDENT_ID= 'sjha4' GROUP BY EXERCISE_ID,STUDENT_ID;
+
+
+ var points number
+
+  SELECT 
+  case when exists (select 1 from ATTEMPT_SUBMISSION where EXERCISE_ID = 1 AND STUDENT_ID= 'nd')
+  then 1--avg(POINTS)
+  else 0
+  end
+  --into points
+ -- select count(POINTS)
+  FROM ATTEMPT_SUBMISSION where rownum =1--where EXERCISE_ID = 1 AND STUDENT_ID= 'nd' GROUP BY EXERCISE_ID,STUDENT_ID;
+  
+  
+  select exstsc.Ex,exstsc.St,exstsc.score, ovrall.avg_scr from
+(select es.e_id as Ex ,es.s_id as St,
+(case es.sp when  'LatestAttempt' 
+--then (select  asui.points from ATTEMPT_SUBMISSION asui where asui.EXERCISE_ID = es.e_id and asui.STUDENT_ID =  es.s_id  and rownum = 1 order by asui.NUMBER_OF_ATTEMPTS desc )
+then latest.pts
+when  'AverageScore' 
+then avg(asu.points)
+else
+max(asu.points)
+end) as score
+from 
+(select e.EXERCISE_ID as e_id, cs.STUDENT_ID as s_id, e.SCORING_POLICY as sp
+from 
+EXERCISE e, COURSE_STUDENT cs 
+where e.COURSE_ID = cs.COURSE_ID) es
+left join ATTEMPT_SUBMISSION asu on (asu.EXERCISE_ID = es.e_id and asu.STUDENT_ID = es.s_id)
+left join (select asu2.EXERCISE_ID as e_id, asu2.STUDENT_ID as s_id, asu2.points as pts from ATTEMPT_SUBMISSION asu2 where asu2.NUMBER_OF_ATTEMPTS = (select max(asu3.NUMBER_OF_ATTEMPTS) from ATTEMPT_SUBMISSION asu3 where asu3.EXERCISE_ID = asu2.EXERCISE_ID and asu3.STUDENT_ID = asu2.STUDENT_ID)) latest on latest.e_id = es.e_id and latest.s_id = es.s_id
+group by es.e_id,es.sp,es.s_id,latest.pts
+order by es.e_id) exstsc
+inner join ( select avg(et.score) as avg_scr ,et.St as stu from
+ (select es.e_id as Ex ,es.s_id as St,
+(case es.sp when  'LatestAttempt' 
+--then (select  asui.points from ATTEMPT_SUBMISSION asui where asui.EXERCISE_ID = es.e_id and asui.STUDENT_ID =  es.s_id  and rownum = 1 order by asui.NUMBER_OF_ATTEMPTS desc )
+then latest.pts
+when  'AverageScore' 
+then avg(asu.points)
+else
+max(asu.points)
+end) as score
+from 
+(select e.EXERCISE_ID as e_id, cs.STUDENT_ID as s_id, e.SCORING_POLICY as sp
+from 
+EXERCISE e, COURSE_STUDENT cs 
+where e.COURSE_ID = cs.COURSE_ID) es
+left join ATTEMPT_SUBMISSION asu on (asu.EXERCISE_ID = es.e_id and asu.STUDENT_ID = es.s_id)
+left join (select asu2.EXERCISE_ID as e_id, asu2.STUDENT_ID as s_id, asu2.points as pts from ATTEMPT_SUBMISSION asu2 where asu2.NUMBER_OF_ATTEMPTS = (select max(asu3.NUMBER_OF_ATTEMPTS) from ATTEMPT_SUBMISSION asu3 where asu3.EXERCISE_ID = asu2.EXERCISE_ID and asu3.STUDENT_ID = asu2.STUDENT_ID)) latest on latest.e_id = es.e_id and latest.s_id = es.s_id
+group by es.e_id,es.sp,es.s_id,latest.pts
+order by es.e_id) et group by et.St) ovrall
+on ovrall.stu = exstsc.St;
+
+select score  from ATTEMPT_SUBMISSION where EXERCISE_ID = 2 and STUDENT_ID = 'aneela'
+order by NUMBER_OF_ATTEMPTS desc
+OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;
+
+SELECT * FROM   MYTABLE
+--ORDER BY COLUMNNAME -OPTIONAL          
+OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY

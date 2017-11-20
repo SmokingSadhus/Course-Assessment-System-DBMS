@@ -1,4 +1,8 @@
 ---------------------------------------
+drop PROCEDURE SELECT_PROFESSOR_OPTIONS;
+drop PROCEDURE INSERT_QUESTION_AND_RETURN_ID;
+drop PROCEDURE INSERT_EXERCISE_AND_RETURN_ID;
+drop PROCEDURE INSERT_AS_AND_RETURN_ID;
 drop sequence ATTEMPT_SUBMISSION_SEQ;
 drop sequence Question_SEQ;
 drop sequence EXERCISE_SEQ;
@@ -6,14 +10,19 @@ drop sequence EXERCISE_SEQ;
  drop trigger EXERCISE_PK_Trigger;
  drop trigger Question_PK_Trigger;
 drop trigger check_is_grad;
+drop trigger check_not_TA;
+drop trigger Points_Scoring_Policy;
+drop trigger Average_Difficulty_Level;
+drop trigger check_TA_is_enrolled;
  
- drop table TA;
+drop table adaptive_exercise_topic;
+drop table TA;
 drop table COURSE_STUDENT;
 drop table SUBMISSION_RESULT;---
 drop table ATTEMPT_SUBMISSION;
 drop table QUESTION_PARAM_ANSWERS;--
---drop table ANSWER;--
---drop table PARAMETER--;
+drop table ANSWER;
+drop table PARAMETER;
 drop table QUESTION_BANK;
 drop table EXERCISE_QUESTION;
 drop table QUESTION;
