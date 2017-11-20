@@ -65,6 +65,7 @@ public class Student {
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				homePage();
 			}
 		}
 
@@ -89,7 +90,9 @@ public class Student {
 			    
 			     }
 			catch(Exception e){
-			   e.printStackTrace();	
+			   e.printStackTrace();
+				homePage();
+				return;
 			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
@@ -114,6 +117,8 @@ public class Student {
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				homePage();
+				return;
 			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
@@ -579,7 +584,7 @@ public class Student {
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
 	    			questionsList.add(rs.getString("question_id"));
-	    			System.out.println("Question Ids:" + rs.getString("question_id"));
+	    			//System.out.println("Question Ids:" + rs.getString("question_id"));
 	    		}
 	    	}
 	    	catch(Exception e) { e.printStackTrace();
@@ -809,6 +814,8 @@ public class Student {
 	    	}
 	    	catch(Exception e) { 
 	    		e.printStackTrace();
+				homePage();
+				return;
 			}
     	   
     	   System.out.println("You got -"+wrong_points);
@@ -888,6 +895,8 @@ public class Student {
 	    	catch(Exception e) {
 	    		System.out.println("Encountered an Error in topic wise adaptive exercise: "+e.getMessage());
 	    		//takeAdaptiveTest(ex_id,retriesAllowed);
+				homePage();
+				return;
 			}
 			cg.closeStatement(stmt);
 			cg.closeResult(rs);
@@ -904,6 +913,8 @@ public class Student {
 		    		System.out.println("If topic exists");
 		    		System.out.println("Encountered an Error: "+e.getMessage());
 		    		//takeAdaptiveTest(ex_id,retriesAllowed);
+					homePage();
+					return;
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);				
@@ -921,6 +932,8 @@ public class Student {
 		    		System.out.println("Encountered an Error: "+e.getMessage());
 		    		System.out.println("Encountered an Error in Question Bank query: "+e.getMessage());
 		    		//takeAdaptiveTest(ex_id,retriesAllowed);
+					homePage();
+					return;
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);	
@@ -1008,6 +1021,8 @@ public class Student {
 			   	catch(Exception e) {
 					System.out.println("SELECT answer FROM question_param_answers WHERE question = ? AND correct=1");
 			   		e.printStackTrace();
+					homePage();
+					return;
 					
 				}
 				cg.closeStatement(stmt);
@@ -1089,6 +1104,8 @@ public class Student {
 		    	catch(Exception e) {
 					e.printStackTrace();
 					System.out.println("Error in getting correct from QPa");
+					homePage();
+					return;
 				}
 				/*
 				 * Assuming using queu question text
@@ -1105,7 +1122,8 @@ public class Student {
 		    	catch(Exception e) {
 					e.printStackTrace();
 					System.out.println("SELECT question_id FROM question_param_answers WHERE question = ?");
-			   		
+			   		homePage();
+					return;
 				}*/
 				/*
 				 * this part was to set q_id of asked question
@@ -1131,6 +1149,8 @@ public class Student {
 	    	catch(Exception e) {
 				e.printStackTrace();
 				System.out.println("Encountered an Error in getting penalty and points");
+				homePage();
+				return;
 			}
 
 			for (int i=0;i<correctness.size();i++) {
@@ -1161,6 +1181,8 @@ public class Student {
 
 	    	catch(Exception e) {
 				e.printStackTrace();
+				homePage();
+				return;
 			}
 				
 			for (int i=0; i<srAttributes.size();i++) {
@@ -1178,6 +1200,8 @@ public class Student {
 
 		    	catch(Exception e) {
 					e.printStackTrace();
+					homePage();
+					return;
 				}
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);
@@ -1188,6 +1212,7 @@ public class Student {
         	catch(Exception e){
         		System.out.println("General exception");
         		e.printStackTrace();
+				homePage();
         	}
         }
 
