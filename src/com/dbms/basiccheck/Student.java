@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -644,7 +645,7 @@ public class Student {
 				List<String> answerOptions=new ArrayList<String>();
 				answerOptions.add(answersCorrectList.get(0));
 				for(int j =0; j <answersWrongList.size() && j < 3;j++) {
-					answerOptions.add(answersWrongList.get(i));
+					answerOptions.add(answersWrongList.get(j));
 				}
 				/*answerOptions.add(answersWrongList.get(0));
 				answerOptions.add(answersWrongList.get(1));
@@ -824,7 +825,8 @@ public class Student {
         	List<SubmissionResult> srAttributes= new ArrayList<SubmissionResult>();
         	List<Integer> questionList = new ArrayList<>();
         	List<String> correctness=new ArrayList<>();
-			HashMap<Integer,List<String>> DQ=new HashMap<>();
+			//HashMap<Integer,List<String>> DQ=new HashMap<>();
+        	HashMap<Integer,List<Integer>> DQ=new HashMap<>();
         	String topic_id=null;
         	int attempt_id=0;
     		int attempt_number=0;
@@ -920,6 +922,7 @@ public class Student {
 				cg.closeStatement(stmt);
 				cg.closeResult(rs);	
 			}
+			HashMap<Integer,String> idToText = new HashMap<>();
 			for (int i=0; i<questionList.size(); i++) {
 				try {
 		    		stmt=con.prepareStatement("SELECT qpa.question as question_text,q.difficulty_level FROM question q, question_param_answers qpa WHERE q.question_id = ? and q.question_id=qpa.question_id");
@@ -927,16 +930,17 @@ public class Student {
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			if (DQ.containsKey(rs.getInt("difficulty_level"))) {
-		    				List<String> l = DQ.get(rs.getInt("difficulty_level"));
+		    				List<Integer> l = DQ.get(rs.getInt("difficulty_level"));
 		    				Collections.shuffle(l);
-		    				l.add(rs.getString("question_text"));
+		    				l.add(questionList.get(i));
 		    				//DQ.put(rs.getInt("difficulty_level"),l);
 		    			}
 		    			else {
-		    				List<String> l = new ArrayList<String>();
-		    				l.add(rs.getString("question_text"));
+		    				List<Integer> l = new ArrayList<Integer>();
+		    				l.add(questionList.get(i));
 		    				DQ.put(rs.getInt("difficulty_level"),l );
 		    			}
+		    			idToText.put(questionList.get(i), rs.getString("question_text"));
 		    		}
 		    	}
 		    	catch(Exception e) {
@@ -948,21 +952,50 @@ public class Student {
 			}
 			int index=0;
 			int temp_difficulty=3;
-			
+			HashSet<Integer> chosenQuestions = new HashSet<Integer>();
 			for (int j=0; j<total_questions;j++) {
-				int q_id=0;
+				//int q_id=0;
 				String answerAttempt=null;
-				List<String> temp=new ArrayList<>();
+				List<Integer> temp=new ArrayList<>();
 				List<String> answersCorrectList=new ArrayList<>();
 				List<String> answersWrongList=new ArrayList<>();
-				temp= DQ.get(temp_difficulty);
+				Integer q_sel = null;
+				boolean wasRigth = true;
+				while(q_sel == null) {
+					
+					temp= DQ.get(temp_difficulty);
+					if(temp !=null) {
+					Collections.shuffle(temp);
+					 q_sel = selectQuestionAdaptively(temp,chosenQuestions);
+					}
+					else {
+						q_sel = null;
+					}
+					 if(q_sel == null) {
+						 if(wasRigth) {
+							 if(temp_difficulty != 6)
+							 {temp_difficulty++;}
+							 else
+							 {temp_difficulty = 1;}
+							
+						 }
+						 else {
+							 if(temp_difficulty != 1)
+							 {temp_difficulty--;}
+							 else
+							 {temp_difficulty = 6;}
+						 }
+					 }
+				}
 				String answer_result=null;
 				//Shuffling needed
-				Collections.shuffle(temp);
-				System.out.println(++index + ". " + temp.get(0));
+				//Collections.shuffle(temp);
+				
+				String question_text = idToText.get(q_sel);
+				System.out.println(++index + ". " + question_text);
 				try {
 			   		stmt=con.prepareStatement("SELECT answer FROM question_param_answers WHERE question = ? AND correct=1");
-			   		stmt.setString(1, temp.get(0));
+			   		stmt.setString(1, question_text);
 			   		
 			   		rs=stmt.executeQuery();
 			    	while (rs.next()) {
@@ -978,7 +1011,7 @@ public class Student {
 				cg.closeResult(rs);
 				try {
 			    	stmt=con.prepareStatement("SELECT answer FROM question_param_answers WHERE question = ? AND correct=0");
-			   		stmt.setString(1, temp.get(0));
+			   		stmt.setString(1, question_text);
 			   		rs=stmt.executeQuery();
 			   		while (rs.next()) {
 			   			answersWrongList.add(rs.getString("answer"));
@@ -1016,18 +1049,39 @@ public class Student {
 				answerAttempt = h_options.get(answerOption);
 				try {
 		    		stmt=con.prepareStatement("SELECT correct FROM question_param_answers WHERE question = ? AND answer = ?");
-		    		stmt.setString(1, temp.get(0));
+		    		stmt.setString(1, question_text);
 		    		stmt.setString(2, answerAttempt);
 		    		//System.out.println("Selecting correct/Incorrect query");
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
 		    			answer_result=rs.getString("correct");
-		    			if (answer_result.equals("0") && temp_difficulty!=1)
+		    			/*if (answer_result.equals("0") && temp_difficulty!=1)
 		    				temp_difficulty--;
 		    			else if (answer_result.equals("1") && temp_difficulty!=6)
-		    				temp_difficulty++;
-		    			correctness.add(answer_result);
+		    				temp_difficulty++;*/
+		    			
 		    		}
+		    		if(answer_result.equals("0")) {
+	    				if(temp_difficulty!=1) {
+	    					temp_difficulty--;
+	    				}
+	    				else {
+	    					temp_difficulty = 1;
+	    				}
+	    				wasRigth =false;
+	    			}
+		    		else {
+		    			if(temp_difficulty!=6) {
+	    					temp_difficulty++;
+	    				}
+	    				else {
+	    					temp_difficulty = 6;
+	    				}
+	    				wasRigth =true;
+		    			
+		    		}
+	    			correctness.add(answer_result);
+		    		
 		    	}
 		    	catch(Exception e) {
 					e.printStackTrace();
@@ -1036,9 +1090,9 @@ public class Student {
 				/*
 				 * Assuming using queu question text
 				 */
-				try {
+				/*try {
 		    		stmt=con.prepareStatement("SELECT question_id FROM question_param_answers WHERE question = ?");
-		    		stmt.setString(1, temp.get(0));
+		    		stmt.setString(1, question_text);
 		    		System.out.println("Selecting Question ID");
 		    		rs=stmt.executeQuery();
 		    		while (rs.next()) {
@@ -1049,11 +1103,11 @@ public class Student {
 					e.printStackTrace();
 					System.out.println("SELECT question_id FROM question_param_answers WHERE question = ?");
 			   		
-				}
+				}*/
 				/*
 				 * this part was to set q_id of asked question
 				 */
-				SubmissionResult values = new SubmissionResult(q_id,temp.get(0),answerAttempt,Integer.parseInt(answer_result),answerOptions);
+				SubmissionResult values = new SubmissionResult(q_sel,question_text,answerAttempt,Integer.parseInt(answer_result),answerOptions);
 				srAttributes.add(values);
 				
 				cg.closeStatement(stmt);
@@ -1133,6 +1187,19 @@ public class Student {
         		e.printStackTrace();
         	}
         }
+
+
+		private static Integer selectQuestionAdaptively(List<Integer> temp, HashSet<Integer> chosenQuestions) {
+			// TODO Auto-generated method stub
+			//return null;
+			for(Integer i: temp) {
+				if(!chosenQuestions.contains(i)) {
+					chosenQuestions.add(i);
+					return i;
+				}
+			}
+			return null;
+		}
 
 }
 
