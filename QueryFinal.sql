@@ -657,7 +657,7 @@ ALTER TRIGGER check_not_TA ENABLE;
 
 ----------------------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER Average_Difficulty_Level 
-AFTER DELETE OR INSERT ON EXERCISE_QUESTION 
+AFTER  INSERT ON EXERCISE_QUESTION 
 FOR EACH ROW
 DECLARE
 init_average number;
@@ -673,6 +673,25 @@ END;
 /
 
 ALTER TRIGGER Average_Difficulty_Level enable;
+
+CREATE OR REPLACE TRIGGER Average_Difficulty_Level_Del 
+AFTER  DELETE ON EXERCISE_QUESTION 
+FOR EACH ROW
+DECLARE
+init_average number;
+init_count number;
+new_difficulty number;
+BEGIN
+  Select CURRENT_QUESTION_COUNT into init_count from EXERCISE where EXERCISE_ID = :OLD.EXERCISE_ID;
+  Select  DIFFICULTY_LEVEL into init_average from EXERCISE where EXERCISE_ID = :OLD.EXERCISE_ID;
+  Select DIFFICULTY_LEVEL into new_difficulty from QUESTION where QUESTION_ID = :OLD.QUESTION_ID;
+  UPDATE EXERCISE SET DIFFICULTY_LEVEL = (((init_average * init_count) - new_difficulty)/(init_count - 1))  WHERE EXERCISE_ID =:OLD.EXERCISE_ID;
+  UPDATE EXERCISE SET CURRENT_QUESTION_COUNT = (CURRENT_QUESTION_COUNT - 1) where  EXERCISE_ID =:OLD.EXERCISE_ID;
+END;
+/
+
+ALTER TRIGGER Average_Difficulty_Level_Del enable;
+
 
 --------------------------------------------------------------------------
 
