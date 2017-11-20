@@ -348,6 +348,7 @@ public class Student {
 						+ "SUBMISSION_TIME,POINTS,NUMBER_OF_ATTEMPTS from ATTEMPT_SUBMISSION where STUDENT_ID = ? and EXERCISE_ID=? ORDER BY NUMBER_OF_ATTEMPTS");
 				stmt.setString(1, username);
 				stmt.setInt(2, exercise_id);
+				
 			   	rs = stmt.executeQuery();
 			   	int pointAverage = 0;
 			   	while(rs.next()){
@@ -692,7 +693,7 @@ public class Student {
 				rs = null;
 				try {
 		    		stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,?,?,?)");			    		
-		    		System.out.println(""+attempt_id);
+		    		//System.out.println(""+attempt_id);
 		    		stmt.setInt(1, attempt_id );
 		    		stmt.setInt(2, attribute.questionId);
 		    		stmt.setString(3, attribute.question);
@@ -1000,7 +1001,7 @@ public class Student {
 				SubmissionResult attribute=srAttributes.get(i);
 				try {
 					stmt=con.prepareStatement("INSERT INTO submission_result (attempt_id,question_id,question,answer,correct) VALUES (?,?,?,?,?)");			    		
-		    		System.out.println(""+attempt_id);
+		    		//System.out.println(""+attempt_id);
 		    		stmt.setInt(1, attempt_id );
 		    		stmt.setInt(2, attribute.questionId);
 		    		stmt.setString(3, attribute.question);

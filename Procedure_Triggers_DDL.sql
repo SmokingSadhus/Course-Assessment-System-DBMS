@@ -1,3 +1,67 @@
+drop PROCEDURE SELECT_PROFESSOR_OPTIONS;
+drop PROCEDURE INSERT_QUESTION_AND_RETURN_ID;
+drop PROCEDURE INSERT_EXERCISE_AND_RETURN_ID;
+drop PROCEDURE INSERT_AS_AND_RETURN_ID;
+drop sequence ATTEMPT_SUBMISSION_SEQ;
+drop sequence Question_SEQ;
+drop sequence EXERCISE_SEQ;
+ drop trigger ATTEMPT_SUBMISSION_PK_Trigger;
+ drop trigger EXERCISE_PK_Trigger;
+ drop trigger Question_PK_Trigger;
+drop trigger check_is_grad;
+drop trigger check_not_TA;
+drop trigger Points_Scoring_Policy;
+drop trigger Average_Difficulty_Level;
+drop trigger check_TA_is_enrolled;
+ 
+drop table adaptive_exercise_topic;
+drop table TA;
+drop table COURSE_STUDENT;
+drop table SUBMISSION_RESULT;---
+drop table ATTEMPT_SUBMISSION;
+drop table QUESTION_PARAM_ANSWERS;--
+drop table ANSWER;
+drop table PARAMETER;
+drop table QUESTION_BANK;
+drop table EXERCISE_QUESTION;
+drop table QUESTION;
+drop table exercise;
+Drop table COURSE_topic;
+Drop table topic;
+Drop table COURSE;
+Drop table student;
+Drop table professor;
+drop table ROLE;
+drop table MENU_OPTIONS;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 CREATE TABLE MENU_OPTIONS 
 (
   ROLE VARCHAR(1) NOT NULL 
@@ -132,19 +196,8 @@ ON DELETE CASCADE
 
 
 -----------------------------------------------------------------------------
--- CREATE SEQUENCE  EXERCISE_SEQ  MINVALUE 0 START WITH (SELECT max(exercise_id)+1 from exercise) INCREMENT BY 1 MAXVALUE 9999999999999999999999999999;
+CREATE SEQUENCE  EXERCISE_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 
-declare
-    l_new_seq INTEGER;
-begin
-   select max(exercise_id) + 1
-   into   l_new_seq
-   from   exercise;
-
-    execute immediate 'Create sequence exercise_seq
-                       start with ' || l_new_seq ||
-                       ' increment by 1';
-end;
 
 
 
@@ -184,19 +237,7 @@ ON DELETE SET NULL
 
 
 -----------------------------------------------------------------------------
---CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
-
-declare
-    lq_new_seq INTEGER;
-begin
-   select max(question_id) + 1
-   into   lq_new_seq
-   from   question;
-
-    execute immediate 'Create sequence question_seq
-                       start with ' || lq_new_seq ||
-                       ' increment by 1';
-end;
+CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 
 -----------------------------------------------------------------------------
 CREATE TABLE QUESTION 
@@ -348,17 +389,6 @@ ON DELETE CASCADE
 -----------------------------------------------------------------------------
 CREATE SEQUENCE  ATTEMPT_SUBMISSION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 
-declare
-    las_new_seq INTEGER;
-begin
-   select max(attempt_id) + 1
-   into   las_new_seq
-   from   attempt_submission;
-
-    execute immediate 'Create sequence attempt_submission_seq
-                       start with ' || las_new_seq ||
-                       ' increment by 1';
-end;
 
 -----------------------------------------------------------------------------
 CREATE TABLE ATTEMPT_SUBMISSION 
@@ -530,6 +560,9 @@ ON DELETE CASCADE
 
 -----------------------------------------------------------------------------
 
+
+
+
 CREATE OR REPLACE TRIGGER EXERCISE_PK_Trigger 
    before insert on  EXERCISE
    for each row 
@@ -545,7 +578,12 @@ ALTER TRIGGER EXERCISE_PK_Trigger ENABLE;
 
 
 
+
+
+
 ----------------------------------------------------------------------------------------
+
+
 CREATE OR REPLACE TRIGGER Question_PK_Trigger 
    before insert on  Question
    for each row 
@@ -558,6 +596,11 @@ begin
 end;
 / 
 ALTER TRIGGER Question_PK_Trigger ENABLE;
+
+
+
+
+
 
 
 
@@ -574,6 +617,10 @@ begin
 end;
 /
 ALTER TRIGGER ATTEMPT_SUBMISSION_PK_Trigger ENABLE;
+
+
+
+
 ---------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER check_is_grad
   BEFORE INSERT OR UPDATE ON TA
@@ -772,4 +819,48 @@ left join ATTEMPT_SUBMISSION asu on (asu.EXERCISE_ID = es.e_id and asu.STUDENT_I
 where asu.NUMBER_OF_ATTEMPTS is null or asu.NUMBER_OF_ATTEMPTS = (select max(asu2.NUMBER_OF_ATTEMPTS) from ATTEMPT_SUBMISSION asu2 where asu2.EXERCISE_ID =es.e_id and asu2.STUDENT_ID = es.s_id )
 order by Ex, St;
 end;
+
+drop sequence ATTEMPT_SUBMISSION_SEQ;
+drop sequence Question_SEQ;
+drop sequence EXERCISE_SEQ;
+
+declare
+    las_new_seq INTEGER;
+begin
+   select max(attempt_id) + 1
+   into   las_new_seq
+   from   attempt_submission;
+
+    execute immediate 'Create sequence attempt_submission_seq
+                       start with ' || las_new_seq ||
+                       ' increment by 1';
+end;
+
+
+declare
+    lq_new_seq INTEGER;
+begin
+   select max(question_id) + 1
+   into   lq_new_seq
+   from   question;
+
+    execute immediate 'Create sequence question_seq
+                       start with ' || lq_new_seq ||
+                       ' increment by 1';
+end;
+
+
+
+declare
+    l_new_seq INTEGER;
+begin
+   select max(exercise_id) + 1
+   into   l_new_seq
+   from   exercise;
+
+    execute immediate 'Create sequence exercise_seq
+                       start with ' || l_new_seq ||
+                       ' increment by 1';
+end;
+
 /
