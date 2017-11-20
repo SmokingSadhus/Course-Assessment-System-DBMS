@@ -13,7 +13,7 @@ where (asu1.exercise_id = asu2.exercise_id and asu1.student_id = asu2.student_id
 and asu1.student_id = s.student_id;
 
 select
-c.course_id, c.course_name,count(cs.STUDENT_ID)
+c.course_id, c.course_name,count(cs.STUDENT_ID) as Total_students_enrolled
 from COURSE c, COURSE_STUDENT cs
 where c.COURSE_ID = cs.COURSE_ID
 group by c.COURSE_ID,c.COURSE_NAME;
