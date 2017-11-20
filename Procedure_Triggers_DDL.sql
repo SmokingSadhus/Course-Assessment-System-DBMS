@@ -132,7 +132,19 @@ ON DELETE CASCADE
 
 
 -----------------------------------------------------------------------------
-CREATE SEQUENCE  EXERCISE_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
+-- CREATE SEQUENCE  EXERCISE_SEQ  MINVALUE 0 START WITH (SELECT max(exercise_id)+1 from exercise) INCREMENT BY 1 MAXVALUE 9999999999999999999999999999;
+
+declare
+    l_new_seq INTEGER;
+begin
+   select max(exercise_id) + 1
+   into   l_new_seq
+   from   exercise;
+
+    execute immediate 'Create sequence exercise_seq
+                       start with ' || l_new_seq ||
+                       ' increment by 1';
+end;
 
 
 
@@ -172,9 +184,19 @@ ON DELETE SET NULL
 
 
 -----------------------------------------------------------------------------
-CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
+--CREATE SEQUENCE  QUESTION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 
+declare
+    lq_new_seq INTEGER;
+begin
+   select max(question_id) + 1
+   into   lq_new_seq
+   from   question;
 
+    execute immediate 'Create sequence question_seq
+                       start with ' || lq_new_seq ||
+                       ' increment by 1';
+end;
 
 -----------------------------------------------------------------------------
 CREATE TABLE QUESTION 
@@ -326,7 +348,17 @@ ON DELETE CASCADE
 -----------------------------------------------------------------------------
 CREATE SEQUENCE  ATTEMPT_SUBMISSION_SEQ  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 ;
 
+declare
+    las_new_seq INTEGER;
+begin
+   select max(attempt_id) + 1
+   into   las_new_seq
+   from   attempt_submission;
 
+    execute immediate 'Create sequence attempt_submission_seq
+                       start with ' || las_new_seq ||
+                       ' increment by 1';
+end;
 
 -----------------------------------------------------------------------------
 CREATE TABLE ATTEMPT_SUBMISSION 
