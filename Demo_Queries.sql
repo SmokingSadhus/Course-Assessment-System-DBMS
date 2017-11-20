@@ -1,3 +1,6 @@
+select *
+from TA
+
 select
 s.Name
 from Student s, COURSE_STUDENT cs
