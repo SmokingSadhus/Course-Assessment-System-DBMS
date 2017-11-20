@@ -4,6 +4,9 @@ select * from question
 
 delete from exercise_question
 
+
+SELECT topic_id FROM adaptive_exercise_topic WHERE exercise_id = ?
+
 select * from course
 delete from attempt_submission where attempt_id in (1,2,3,4,5,6,7,8)
 ALTER TABLE QUESTION 

@@ -643,10 +643,13 @@ public class Student {
 				Collections.shuffle(answersWrongList);
 				List<String> answerOptions=new ArrayList<String>();
 				answerOptions.add(answersCorrectList.get(0));
-				answerOptions.add(answersWrongList.get(0));
+				for(int j =0; j <answersWrongList.size() && j < 3;j++) {
+					answerOptions.add(answersWrongList.get(i));
+				}
+				/*answerOptions.add(answersWrongList.get(0));
 				answerOptions.add(answersWrongList.get(1));
 				answerOptions.add(answersWrongList.get(2));
-				
+				*/
 				Collections.shuffle(answerOptions);
 				
 				for (int j=0;j<answerOptions.size();j++) {
@@ -868,13 +871,13 @@ public class Student {
 				return;
 			}
 			try {
-	    		stmt=con.prepareStatement("SELECT topic_id, count(topic_id) AS topic_exists FROM adaptive_exercise_topic WHERE exercise_id = ?");
+	    		stmt=con.prepareStatement("SELECT topic_id FROM adaptive_exercise_topic WHERE exercise_id = ?");
 	    		stmt.setInt(1, ex_id);
 	    		rs=stmt.executeQuery();
 	    		while (rs.next()) {
-	    			int temp = rs.getInt("topic_exists");
+	    			//int temp = rs.getInt("topic_exists");
 	    			topic_id = rs.getString("topic_id");
-	    			if (temp==1) topic_exists=true;
+	    			if (topic_id != null) topic_exists=true;
 	    		}
 	    	}
 	    	catch(Exception e) {
@@ -927,7 +930,7 @@ public class Student {
 		    				List<String> l = DQ.get(rs.getInt("difficulty_level"));
 		    				Collections.shuffle(l);
 		    				l.add(rs.getString("question_text"));
-		    				DQ.put(rs.getInt("difficulty_level"),l);
+		    				//DQ.put(rs.getInt("difficulty_level"),l);
 		    			}
 		    			else {
 		    				List<String> l = new ArrayList<String>();
@@ -994,10 +997,14 @@ public class Student {
 				List<String> answerOptions=new ArrayList<String>();
 				HashMap<Integer,String> h_options=new HashMap<>();
 				answerOptions.add(answersCorrectList.get(0));
-     			answerOptions.add(answersWrongList.get(0));
+				for(int k =0; k <answersWrongList.size() && k < 3;k++) {
+					answerOptions.add(answersWrongList.get(k));
+				}
+     			
+				/*answerOptions.add(answersWrongList.get(0));
 				answerOptions.add(answersWrongList.get(1));
 				answerOptions.add(answersWrongList.get(2));
-					
+				*/	
 				Collections.shuffle(answerOptions);
 					
 				for (int k=0;k<answerOptions.size();k++) {
